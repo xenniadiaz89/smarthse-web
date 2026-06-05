@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Smart HSE Chile — Automatización HSE para la Gran Minería</title>
+<style>
+/* Google Fonts fallback para preview — en producción reemplazar por link externo */
+</style>
+<style>
+:root{
+  --navy:#002B49;
+  --cyan:#00B4D8;
+  --cyan2:#55B4B0;
+  --lime:#7FBA00;
+  --white:#ffffff;
+  --bg:#f4f8fb;
+  --text:#002B49;
+  --grey:#6B7280;
+  --card:#ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:300;color:var(--text);background:var(--white);overflow-x:hidden}
+
+/* ── NAVBAR ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:999;padding:14px 48px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(0,43,73,0.55);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid transparent;transition:border-color .3s}
+nav.scrolled{border-bottom:1px solid var(--cyan)}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--navy));
+  display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:900;color:#fff;font-size:13px;letter-spacing:1px}
+.logo-text-wrap .t1{font-family:'Montserrat',sans-serif;font-weight:700;font-size:18px;color:#fff;letter-spacing:2px}
+.logo-text-wrap .t2{font-size:9px;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;font-weight:600}
+.nav-links{display:flex;gap:28px}
+.nav-links a{color:rgba(255,255,255,0.75);text-decoration:none;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover{color:var(--cyan)}
+.nav-cta{background:var(--cyan);color:#fff;padding:9px 22px;border-radius:24px;font-size:12px;font-weight:600;letter-spacing:1px;text-decoration:none;text-transform:uppercase;transition:background .2s}
+.nav-cta:hover{background:var(--cyan2)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:.3s}
+@media(max-width:768px){
+  nav{padding:12px 20px}
+  .nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(0,43,73,.97);flex-direction:column;padding:24px 28px;gap:18px}
+  .nav-links.open{display:flex}
+  .hamburger{display:flex}
+  .nav-cta{display:none}
+}
+
+/* ── HERO ── */
+#hero{position:relative;min-height:100vh;background:var(--navy);display:flex;align-items:center;overflow:hidden;padding:80px 48px 60px}
+.grid-bg{position:absolute;inset:0;background-image:
+  linear-gradient(rgba(0,180,216,.07) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(0,180,216,.07) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none}
+.scan-line{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,180,216,.4),transparent);
+  animation:scan 4s linear infinite}
+@keyframes scan{0%{top:-2%}100%{top:102%}}
+.hero-content{position:relative;z-index:2;max-width:640px}
+.badge-active{display:inline-flex;align-items:center;gap:8px;background:rgba(0,180,216,.12);border:1px solid rgba(0,180,216,.3);
+  padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;color:var(--cyan);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px}
+.badge-active::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero-tag{font-size:11px;font-weight:600;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+h1.hero-title{font-family:'Montserrat',sans-serif;font-weight:300;font-size:clamp(32px,5vw,56px);color:#fff;line-height:1.15;margin-bottom:8px}
+h1.hero-title strong{font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--lime));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+h1.hero-title em{font-style:normal;font-weight:600;color:rgba(255,255,255,.75)}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.6);line-height:1.7;margin:18px 0 32px;max-width:500px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{background:var(--cyan);color:#fff;padding:14px 30px;border-radius:30px;font-weight:600;font-size:13px;letter-spacing:.5px;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,180,216,.35)}
+.btn-outline{border:1px solid rgba(255,255,255,.3);color:#fff;padding:14px 30px;border-radius:30px;font-weight:600;font-size:13px;text-decoration:none;transition:border-color .2s}
+.btn-outline:hover{border-color:var(--cyan)}
+.hero-stats{display:flex;gap:40px;margin-top:48px;flex-wrap:wrap}
+.stat-item .val{font-family:'Montserrat',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)}
+.stat-item .lbl{font-size:11px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.hero-panel{position:absolute;right:48px;top:50%;transform:translateY(-50%);width:280px;background:rgba(0,43,73,.7);border:1px solid rgba(0,180,216,.2);border-radius:16px;padding:20px;backdrop-filter:blur(12px);z-index:2}
+@media(max-width:1100px){.hero-panel{display:none}}
+.panel-title{font-size:10px;font-weight:600;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.module-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.module-row:last-child{border:none}
+.module-name{font-size:12px;color:rgba(255,255,255,.8)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 6px var(--lime)}
+@media(max-width:768px){#hero{padding:100px 20px 60px}}
+
+/* ── MANDANTES ── */
+#mandantes{background:var(--bg);padding:40px 48px;overflow:hidden}
+.mandantes-label{text-align:center;font-size:10px;font-weight:600;color:var(--grey);letter-spacing:3px;text-transform:uppercase;margin-bottom:24px}
+.mandantes-track{display:flex;gap:60px;align-items:center;animation:marquee 18s linear infinite;width:max-content}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.mandante{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--navy);letter-spacing:2px;text-transform:uppercase;opacity:.7;white-space:nowrap}
+.mandante span{color:var(--cyan);font-weight:900}
+
+/* ── SECTION SHARED ── */
+section{padding:80px 48px}
+@media(max-width:768px){section{padding:60px 20px}}
+.section-tag{font-size:10px;font-weight:600;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.section-title{font-family:'Montserrat',sans-serif;font-weight:300;font-size:clamp(26px,3.5vw,40px);color:var(--navy);margin-bottom:14px}
+.section-title strong{font-weight:700}
+.section-sub{font-size:15px;color:var(--grey);max-width:560px;line-height:1.7;margin-bottom:48px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+@media(max-width:900px){.grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:580px){.grid-3,.grid-2{grid-template-columns:1fr}}
+
+/* ── SOLUTION CARDS ── */
+#soluciones{background:var(--bg)}
+.sol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media(max-width:900px){.sol-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:580px){.sol-grid{grid-template-columns:1fr}}
+.sol-card{background:var(--white);border-radius:16px;padding:28px;border:1px solid rgba(0,43,73,.07);position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;text-decoration:none;display:block;color:inherit}
+.sol-card::before{content:'';position:absolute;inset:0;border-radius:16px;padding:1px;background:linear-gradient(135deg,var(--cyan),var(--lime));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .3s}
+.sol-card:hover::before{opacity:1}
+.sol-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,43,73,.1)}
+.card-badge{display:inline-block;background:rgba(127,186,0,.12);color:var(--lime);border:1px solid rgba(127,186,0,.3);font-size:9px;font-weight:700;padding:3px 10px;border-radius:12px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.card-icon{font-size:28px;margin-bottom:12px}
+.sol-card h3{font-family:'Montserrat',sans-serif;font-weight:600;font-size:15px;color:var(--navy);margin-bottom:8px}
+.sol-card p{font-size:13px;color:var(--grey);line-height:1.6}
+.card-arrow{position:absolute;bottom:20px;right:20px;width:32px;height:32px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--cyan);font-size:14px;transition:background .2s}
+.sol-card:hover .card-arrow{background:var(--cyan);color:#fff}
+
+/* ── NORMATIVA ── */
+#normativa{background:var(--white)}
+.norm-card{background:var(--bg);border-radius:12px;padding:24px;border-left:3px solid var(--cyan)}
+.norm-card .norm-code{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;color:var(--navy);margin-bottom:6px}
+.norm-card p{font-size:12px;color:var(--grey);line-height:1.6}
+
+/* ── PROCESO ── */
+#proceso{background:var(--bg)}
+.steps-wrap{display:flex;gap:0;align-items:flex-start;position:relative}
+.steps-wrap::before{content:'';position:absolute;top:28px;left:calc(12.5% + 14px);right:calc(12.5% + 14px);height:1px;background:linear-gradient(90deg,var(--cyan),var(--lime));z-index:0}
+@media(max-width:700px){.steps-wrap{flex-direction:column;gap:24px}.steps-wrap::before{display:none}}
+.step{flex:1;text-align:center;position:relative;z-index:1;padding:0 12px}
+.step-num{width:56px;height:56px;border-radius:50%;background:var(--navy);border:2px solid var(--cyan);display:flex;align-items:center;justify-content:center;
+  font-family:'Montserrat',sans-serif;font-weight:700;font-size:18px;color:var(--cyan);margin:0 auto 16px}
+.step h4{font-family:'Montserrat',sans-serif;font-weight:600;font-size:14px;color:var(--navy);margin-bottom:6px}
+.step p{font-size:12px;color:var(--grey);line-height:1.6}
+
+/* ── MÉTRICAS ── */
+#metricas{background:var(--navy);padding:80px 48px}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;max-width:900px;margin:0 auto}
+@media(max-width:700px){.metrics-grid{grid-template-columns:repeat(2,1fr)}}
+.metric-item{text-align:center}
+.metric-val{font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(36px,5vw,56px);color:var(--cyan);line-height:1}
+.metric-unit{font-size:16px;color:var(--cyan);font-weight:300}
+.metric-lbl{font-size:11px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:8px}
+.metric-sub{font-size:12px;color:rgba(255,255,255,.35);margin-top:4px}
+.metrics-tag{text-align:center;font-size:10px;font-weight:600;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+.metrics-title{text-align:center;font-family:'Montserrat',sans-serif;font-weight:300;font-size:clamp(22px,3vw,32px);color:#fff;margin-bottom:48px}
+.metrics-title strong{font-weight:700}
+
+/* ── TESTIMONIOS ── */
+#testimonios{background:var(--bg)}
+.testi-card{background:var(--white);border-radius:16px;padding:28px;border:1px solid rgba(0,43,73,.07)}
+.testi-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--navy));
+  display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;color:#fff;margin-bottom:16px}
+.testi-text{font-size:13px;color:var(--grey);line-height:1.7;font-style:italic;margin-bottom:16px}
+.testi-name{font-weight:600;font-size:13px;color:var(--navy)}
+.testi-role{font-size:11px;color:var(--cyan);font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.stars{color:#f59e0b;font-size:13px;margin-bottom:12px}
+
+/* ── CTA CONTACTO ── */
+#contacto{background:var(--white);position:relative;overflow:hidden}
+#contacto::before{content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(0,43,73,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,43,73,.03) 1px,transparent 1px);
+  background-size:40px 40px}
+.cta-inner{position:relative;z-index:1;text-align:center;max-width:600px;margin:0 auto}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:32px}
+.btn-wa{background:#25D366;color:#fff;padding:14px 30px;border-radius:30px;font-weight:600;font-size:13px;text-decoration:none;display:flex;align-items:center;gap:8px;transition:transform .2s}
+.btn-wa:hover{transform:translateY(-2px)}
+.btn-mail{border:1px solid var(--navy);color:var(--navy);padding:14px 30px;border-radius:30px;font-weight:600;font-size:13px;text-decoration:none;display:flex;align-items:center;gap:8px;transition:background .2s,color .2s}
+.btn-mail:hover{background:var(--navy);color:#fff}
+
+/* ── FOOTER ── */
+footer{background:var(--navy);color:rgba(255,255,255,.55);padding:60px 48px 30px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr}.footer-grid>div:first-child{grid-column:1/-1}}
+.footer-logo .t1{font-family:'Montserrat',sans-serif;font-weight:700;font-size:20px;color:#fff;letter-spacing:2px}
+.footer-logo .t2{font-size:9px;color:var(--cyan);letter-spacing:3px;font-weight:600}
+.footer-desc{font-size:12px;line-height:1.7;margin-top:12px;color:rgba(255,255,255,.45)}
+.footer-col h5{font-size:11px;font-weight:600;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.footer-col a{display:block;font-size:12px;color:rgba(255,255,255,.5);text-decoration:none;margin-bottom:8px;transition:color .2s}
+.footer-col a:hover{color:var(--cyan)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:24px;font-size:11px;text-align:center;color:rgba(255,255,255,.3)}
+
+/* ── WA FLOAT ── */
+.wa-float{position:fixed;bottom:28px;right:28px;z-index:998;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(37,211,102,.4);text-decoration:none;animation:waPulse 2.5s infinite}
+@keyframes waPulse{0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.4)}50%{box-shadow:0 4px 36px rgba(37,211,102,.7)}}
+.wa-float svg{width:28px;height:28px;fill:#fff}
+
+/* counter animation */
+.counter{display:inline-block}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a class="logo-wrap" href="#">
+    <div class="logo-mark">SH</div>
+    <div class="logo-text-wrap">
+      <div class="t1">SMART HSE</div>
+      <div class="t2">CHILE · IA HSE</div>
+    </div>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="#soluciones">Soluciones</a>
+    <a href="#normativa">Normativa</a>
+    <a href="#proceso">Proceso</a>
+    <a href="#metricas">Métricas</a>
+    <a href="#contacto">Contacto</a>
+  </div>
+  <a href="#contacto" class="nav-cta">Acceso a Consola</a>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="grid-bg"></div>
+  <div class="scan-line"></div>
+  <div class="hero-content">
+    <div class="badge-active">Sistema Activo · 5 Módulos En Línea</div>
+    <div class="hero-tag">Automatización HSE · Minería Chile</div>
+    <h1 class="hero-title">
+      Documentación HSE<br>
+      <strong>Sin Errores.</strong><br>
+      <em>Sin Tiempo Perdido.</em>
+    </h1>
+    <p class="hero-sub">De 16 horas a menos de 2 horas por carpeta de arranque. Smart HSE automatiza el cumplimiento del DS 44, DS 594 y Ley 16.744 para contratistas de la gran minería chilena.</p>
+    <div class="hero-btns">
+      <a href="#soluciones" class="btn-primary">Ver Módulos Activos</a>
+      <a href="#contacto" class="btn-outline">Solicitar Demo</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="val">87.5<span style="font-size:20px">%</span></div><div class="lbl">Reducción tiempo documental</div></div>
+      <div class="stat-item"><div class="val">29<span style="font-size:20px">/29</span></div><div class="lbl">Ítems RESSO cubiertos</div></div>
+      <div class="stat-item"><div class="val">0</div><div class="lbl">No conformidades toleradas</div></div>
+    </div>
+  </div>
+  <div class="hero-panel">
+    <div class="panel-title">Estado de Módulos</div>
+    <div class="module-row"><span class="module-name">Auditor RESSO Codelco</span><span class="status-dot"></span></div>
+    <div class="module-row"><span class="module-name">Declaraciones RC/ECF/EST</span><span class="status-dot"></span></div>
+    <div class="module-row"><span class="module-name">Auditor APR · DS 44</span><span class="status-dot"></span></div>
+    <div class="module-row"><span class="module-name">Checklist HSE Vehículos</span><span class="status-dot"></span></div>
+    <div class="module-row"><span class="module-name">Cartas N/A + Terreno</span><span class="status-dot"></span></div>
+  </div>
+</section>
+
+<!-- MANDANTES -->
+<div id="mandantes">
+  <div class="mandantes-label">Mandantes donde operamos</div>
+  <div class="mandantes-track">
+    <div class="mandante"><span>CO</span>DELCO · RT</div>
+    <div class="mandante"><span>BHP</span> SPENCE</div>
+    <div class="mandante">EL <span>AB</span>RA</div>
+    <div class="mandante"><span>CENTI</span>NELA</div>
+    <div class="mandante"><span>ANTU</span>COYA</div>
+    <div class="mandante">LOS <span>PE</span>LAMBRES</div>
+    <div class="mandante"><span>CO</span>DELCO · RT</div>
+    <div class="mandante"><span>BHP</span> SPENCE</div>
+    <div class="mandante">EL <span>AB</span>RA</div>
+    <div class="mandante"><span>CENTI</span>NELA</div>
+    <div class="mandante"><span>ANTU</span>COYA</div>
+    <div class="mandante">LOS <span>PE</span>LAMBRES</div>
+  </div>
+</div>
+
+<!-- SOLUCIONES -->
+<section id="soluciones">
+  <div class="section-tag">Módulos Funcionales</div>
+  <h2 class="section-title"><strong>5 Herramientas IA</strong> para el<br>Prevencionista Moderno</h2>
+  <p class="section-sub">Cada módulo resuelve una tarea concreta del ciclo HSE. Sin curva de aprendizaje, sin errores de formato, sin papeleo redundante.</p>
+  <div class="sol-grid">
+
+    <a class="sol-card" href="auditor-resso-codelco-drt.html">
+      <div class="card-badge">En Línea</div>
+      <div class="card-icon">📋</div>
+      <h3>Auditor RESSO Codelco</h3>
+      <p>Auditoría interactiva de los 29 ítems RESSO V9 con semáforo automático, CAPA y dictamen IA para Codelco DRT.</p>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a class="sol-card" href="auditor-resso-codelco-drt.html#declaraciones">
+      <div class="card-badge">En Línea</div>
+      <div class="card-icon">⚖️</div>
+      <h3>Declaraciones RC/ECF/EST</h3>
+      <p>Genera las 3 declaraciones oficiales de aplicabilidad: 27 RC, 13 ECF y 10 EST de Codelco DRT con texto normativo exacto.</p>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a class="sol-card" href="auditor-experto-apr.html">
+      <div class="card-badge">En Línea</div>
+      <div class="card-icon">🛡️</div>
+      <h3>Auditor APR con Base Legal</h3>
+      <p>Análisis de Peligros y Riesgos con flujo en 3 pasos, dictamen IA en tiempo real, KPIs de NC y citas normativas automáticas.</p>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a class="sol-card" href="checklist-digital.html">
+      <div class="card-badge">En Línea</div>
+      <div class="card-icon">🚗</div>
+      <h3>Checklist Digital Vehículos</h3>
+      <p>22 ítems en 5 secciones con semáforo Crítico/Mantenimiento/Menor, control de fatiga y dashboard de flota.</p>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <a class="sol-card" href="carta-na.html">
+      <div class="card-badge">En Línea</div>
+      <div class="card-icon">✉️</div>
+      <h3>Generador Cartas N/A + Terreno</h3>
+      <p>Genera cartas de no aplicabilidad formales por ítem e informes de terreno con 7 secciones oficiales, hallazgos y firmas.</p>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <div class="sol-card" style="cursor:default;opacity:.6">
+      <div class="card-badge" style="background:rgba(107,114,128,.1);color:var(--grey);border-color:rgba(107,114,128,.2)">Próximamente</div>
+      <div class="card-icon">📊</div>
+      <h3>Dashboard Ejecutivo HSE</h3>
+      <p>KPIs consolidados por contrato, estado de cumplimiento por mandante y alertas de vencimiento crítico.</p>
+      <div class="card-arrow" style="color:var(--grey)">→</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- NORMATIVA -->
+<section id="normativa">
+  <div class="section-tag">Marco Legal</div>
+  <h2 class="section-title">Cumplimiento <strong>Normativo Completo</strong></h2>
+  <p class="section-sub">Smart HSE está parametrizado sobre la normativa vigente chilena que afecta a empresas contratistas mineras.</p>
+  <div class="grid-3">
+    <div class="norm-card">
+      <div class="norm-code">DS N° 44</div>
+      <p>Reglamento de empresas contratistas y subcontratistas. Eje central de acreditación RESSO y carpetas de arranque.</p>
+    </div>
+    <div class="norm-card">
+      <div class="norm-code">Ley 16.744</div>
+      <p>Seguro Social contra accidentes del trabajo y enfermedades profesionales. Base de toda la gestión de seguridad laboral.</p>
+    </div>
+    <div class="norm-card">
+      <div class="norm-code">RESSO V9</div>
+      <p>Reglamento Especial de Seguridad de Codelco. 29 elementos auditables con trazabilidad completa y dictamen automático.</p>
+    </div>
+    <div class="norm-card">
+      <div class="norm-code">ECF 21</div>
+      <p>Estándar de Codelco Faena. 13 controles con declaración de aplicabilidad generada por IA con cita exacta de artículos.</p>
+    </div>
+    <div class="norm-card">
+      <div class="norm-code">DS N° 72</div>
+      <p>Reglamento de Seguridad Minera SERNAGEOMIN. Controles específicos para operaciones en faenas mineras.</p>
+    </div>
+    <div class="norm-card">
+      <div class="norm-code">DS N° 594</div>
+      <p>Condiciones sanitarias en los lugares de trabajo. Verificación automática en inspecciones de terreno.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESO -->
+<section id="proceso">
+  <div class="section-tag">Cómo Funciona</div>
+  <h2 class="section-title">De <strong>16 horas</strong> a <strong>menos de 2</strong></h2>
+  <p class="section-sub">El flujo de Smart HSE replica el proceso real del prevencionista, eliminando las etapas manuales que generan errores y pérdida de tiempo.</p>
+  <div class="steps-wrap">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h4>Ingreso de Datos Maestros</h4>
+      <p>Carga nómina, equipos y datos del contrato una sola vez. El sistema los reutiliza en todos los documentos.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h4>Selección de Módulo</h4>
+      <p>Elige la tarea: auditoría RESSO, cartas N/A, checklist vehículo, APR o informe de terreno.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h4>Generación IA</h4>
+      <p>La IA cruza tu información con la normativa vigente y genera el documento con formato auditado y sin errores de arrastre.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h4>Revisión y Envío</h4>
+      <p>Validas en menos de 10 minutos, agregas firma y envías al mandante. Listo para superar la auditoría.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MÉTRICAS -->
+<section id="metricas">
+  <div class="metrics-tag">Resultados Reales</div>
+  <div class="metrics-title">Números que hablan<br><strong>solos en terreno</strong></div>
+  <div class="metrics-grid">
+    <div class="metric-item">
+      <div class="metric-val"><span class="counter" data-target="20">0</span><span class="metric-unit"> min</span></div>
+      <div class="metric-lbl">Tiempo promedio por tarea</div>
+      <div class="metric-sub">vs. horas en proceso manual</div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-val"><span class="counter" data-target="0">0</span></div>
+      <div class="metric-lbl">No conformidades por formato</div>
+      <div class="metric-sub">Con documentación auditada</div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-val"><span class="counter" data-target="29">0</span><span class="metric-unit">/29</span></div>
+      <div class="metric-lbl">Ítems RESSO cubiertos</div>
+      <div class="metric-sub">Cobertura total DS 44</div>
+    </div>
+    <div class="metric-item">
+      <div class="metric-val"><span class="counter" data-target="100">0</span><span class="metric-unit">%</span></div>
+      <div class="metric-lbl">Trazabilidad documental</div>
+      <div class="metric-sub">Auditado y versionado</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIOS -->
+<section id="testimonios">
+  <div class="section-tag">Testimonios</div>
+  <h2 class="section-title">Lo que dicen<br><strong>los prevencionistas</strong></h2>
+  <p class="section-sub">Profesionales HSE de la gran minería que ya trabajan con Smart HSE.</p>
+  <div class="grid-3">
+    <div class="testi-card">
+      <div class="testi-avatar">CR</div>
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"Antes armaba la carpeta de arranque en 3 días. Con Smart HSE lo hago en una mañana y sin errores de formato. Codelco me la aprobó al primer envío."</p>
+      <div class="testi-name">Carlos R.</div>
+      <div class="testi-role">Prevencionista · Codelco RT</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-avatar">MV</div>
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"El módulo de cartas N/A me ahorró dos días de correcciones en el contrato de Spence. Ahora genero las 15 cartas en 20 minutos."</p>
+      <div class="testi-name">María V.</div>
+      <div class="testi-role">APR Independiente · BHP Spence</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-avatar">JP</div>
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"El auditor RESSO detecta las brechas automáticamente y genera el plan de acción. Ya no tengo miedo a las auditorías sorpresa de Codelco."</p>
+      <div class="testi-name">Jorge P.</div>
+      <div class="testi-role">Jefe HSE · Contratista Centinela</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA CONTACTO -->
+<section id="contacto">
+  <div class="cta-inner">
+    <div class="section-tag" style="text-align:center">Contacto</div>
+    <h2 class="section-title" style="text-align:center"><strong>¿Listo para eliminar</strong><br>el papeleo HSE?</h2>
+    <p style="font-size:15px;color:var(--grey);line-height:1.7;text-align:center">Escríbenos por WhatsApp o correo y te damos acceso a una demo gratuita de 30 minutos. Sin compromiso.</p>
+    <div class="cta-btns">
+      <a href="https://wa.me/56900000000?text=Hola%2C%20quiero%20conocer%20Smart%20HSE" target="_blank" class="btn-wa">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </a>
+      <a href="mailto:hola@smarthse.cl" class="btn-mail">
+        📧 hola@smarthse.cl
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">
+        <div class="t1">SMART HSE</div>
+        <div class="t2">CHILE · AUTOMATIZACIÓN HSE MINERA</div>
+      </div>
+      <p class="footer-desc">Plataforma de automatización documental HSE especializada en empresas contratistas de la gran minería chilena. DS 44 · DS 594 · Ley 16.744 · RESSO V9.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Módulos</h5>
+      <a href="auditor-resso-codelco-drt.html">Auditor RESSO</a>
+      <a href="auditor-resso-codelco-drt.html#declaraciones">RC/ECF/EST</a>
+      <a href="auditor-experto-apr.html">Auditor APR</a>
+      <a href="checklist-digital.html">Checklist HSE</a>
+      <a href="carta-na.html">Cartas N/A</a>
+    </div>
+    <div class="footer-col">
+      <h5>Normativa</h5>
+      <a href="#normativa">DS N° 44</a>
+      <a href="#normativa">Ley 16.744</a>
+      <a href="#normativa">RESSO V9</a>
+      <a href="#normativa">ECF 21</a>
+      <a href="#normativa">DS N° 594</a>
+    </div>
+    <div class="footer-col">
+      <h5>Contacto</h5>
+      <a href="mailto:hola@smarthse.cl">hola@smarthse.cl</a>
+      <a href="https://wa.me/56900000000">+56 9 0000 0000</a>
+      <a href="https://smarthse.cl">smarthse.cl</a>
+      <a href="#inicio">Calama · Antofagasta · Chile</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 Smart HSE Chile · Omega Servicios SPA · Todos los derechos reservados</div>
+</footer>
+
+<!-- BOTÓN FLOTANTE WHATSAPP -->
+<a class="wa-float" href="https://wa.me/56900000000?text=Hola%2C%20quiero%20conocer%20Smart%20HSE" target="_blank" title="WhatsApp">
+  <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>
+// Navbar scroll
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>60)
+})
+
+// Hamburger
+function toggleMenu(){
+  document.getElementById('navLinks').classList.toggle('open')
+}
+
+// Counter animation
+const counters=document.querySelectorAll('.counter')
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const el=e.target,target=+el.dataset.target,dur=1500
+      const step=target/dur*16
+      let cur=0
+      const timer=setInterval(()=>{
+        cur=Math.min(cur+step,target)
+        el.textContent=Math.floor(cur)
+        if(cur>=target){el.textContent=target;clearInterval(timer)}
+      },16)
+      observer.unobserve(el)
+    }
+  })
+},{threshold:.5})
+counters.forEach(c=>observer.observe(c))
+</script>
+</body>
+</html>

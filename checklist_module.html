@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Checklist HSE Vehículos — Smart HSE</title>
+
+<style>
+:root{--navy:#002B49;--cyan:#00B4D8;--lime:#7FBA00;--red:#E53E3E;--orange:#DD6B20;--white:#fff;--bg:#f4f8fb;--grey:#6B7280;--border:rgba(0,43,73,.1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;font-weight:300;background:var(--bg);color:var(--navy)}
+.topbar{background:var(--navy);padding:12px 32px;display:flex;align-items:center;justify-content:space-between}
+.topbar-logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;color:#fff;letter-spacing:2px}
+.topbar-logo span{color:var(--cyan)}
+.topbar-back{font-size:12px;color:rgba(255,255,255,.6);text-decoration:none;display:flex;align-items:center;gap:6px}
+.topbar-back:hover{color:var(--cyan)}
+.tab-bar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;display:flex;overflow-x:auto}
+.tab-btn{padding:16px 24px;font-size:13px;font-weight:600;color:var(--grey);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s}
+.tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab-panel{display:none;padding:28px 32px;max-width:1000px;margin:0 auto}
+.tab-panel.active{display:block}
+.card{background:var(--white);border-radius:12px;padding:22px;border:1px solid var(--border);margin-bottom:18px}
+.card-title{font-family:'Montserrat',sans-serif;font-weight:600;font-size:14px;color:var(--navy);margin-bottom:16px}
+.section-header{font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;padding:10px 0 6px;border-bottom:1px solid var(--border);margin-bottom:12px}
+/* CHECKLIST ITEMS */
+.check-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(0,43,73,.05)}
+.check-item:last-child{border:none}
+.check-label{font-size:13px;color:var(--navy);flex:1;padding-right:12px}
+.check-label .critico{font-size:10px;font-weight:700;color:var(--red);background:rgba(229,62,62,.1);padding:2px 8px;border-radius:8px;margin-left:6px;letter-spacing:1px}
+.check-btns{display:flex;gap:6px}
+.cb{padding:5px 11px;border-radius:14px;border:1px solid;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
+.cb-ok{border-color:rgba(127,186,0,.4);color:var(--lime);background:rgba(127,186,0,.06)}
+.cb-ok.active{background:var(--lime);color:#fff;border-color:var(--lime)}
+.cb-nc{border-color:rgba(229,62,62,.4);color:var(--red);background:rgba(229,62,62,.06)}
+.cb-nc.active{background:var(--red);color:#fff;border-color:var(--red)}
+.cb-na{border-color:rgba(107,114,128,.3);color:var(--grey);background:rgba(107,114,128,.04)}
+.cb-na.active{background:var(--grey);color:#fff}
+/* PROGRESS */
+.prog-wrap{background:var(--bg);border-radius:10px;padding:16px;margin-bottom:16px}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-title{font-size:13px;font-weight:600;color:var(--navy)}
+.prog-pct{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:700;color:var(--cyan)}
+.prog-bar-bg{height:8px;background:rgba(0,43,73,.08);border-radius:8px;overflow:hidden;margin-bottom:6px}
+.prog-bar-fill{height:100%;border-radius:8px;transition:width .4s,background .4s}
+.sem{display:inline-block;padding:3px 12px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.sem-green{background:rgba(127,186,0,.12);color:var(--lime);border:1px solid rgba(127,186,0,.3)}
+.sem-orange{background:rgba(221,107,32,.1);color:var(--orange);border:1px solid rgba(221,107,32,.3)}
+.sem-red{background:rgba(229,62,62,.1);color:var(--red);border:1px solid rgba(229,62,62,.3)}
+.stats-row{display:flex;gap:20px;font-size:12px;color:var(--grey)}
+/* FATIGA */
+.fatiga-q{background:var(--white);border-radius:10px;padding:16px;border:1px solid var(--border);margin-bottom:12px}
+.fatiga-q.critica{border-left:3px solid var(--red)}
+.q-text{font-size:13px;color:var(--navy);margin-bottom:10px}
+.q-critica-tag{font-size:10px;font-weight:700;color:var(--red);letter-spacing:1px;margin-bottom:6px;display:block}
+.q-btns{display:flex;gap:8px}
+.q-btn{padding:7px 20px;border-radius:20px;border:1px solid var(--border);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;background:var(--bg);color:var(--navy)}
+.q-btn.si{border-color:rgba(229,62,62,.4);color:var(--red)}
+.q-btn.si.active{background:var(--red);color:#fff;border-color:var(--red)}
+.q-btn.no{border-color:rgba(127,186,0,.4);color:var(--lime)}
+.q-btn.no.active{background:var(--lime);color:#fff;border-color:var(--lime)}
+/* VEREDICTO */
+.veredicto{border-radius:12px;padding:20px;text-align:center;margin-top:16px;display:none}
+.veredicto.apto{background:rgba(127,186,0,.08);border:2px solid rgba(127,186,0,.3)}
+.veredicto.no-apto{background:rgba(229,62,62,.08);border:2px solid rgba(229,62,62,.3)}
+.ver-icon{font-size:36px;margin-bottom:8px}
+.ver-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:18px;margin-bottom:6px}
+.ver-sub{font-size:13px;color:var(--grey);line-height:1.6}
+/* DASHBOARD */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+@media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-box{background:var(--white);border-radius:10px;padding:16px;text-align:center;border:1px solid var(--border)}
+.kpi-val{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:700;color:var(--cyan)}
+.kpi-lbl{font-size:10px;font-weight:600;color:var(--grey);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.flota-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:500px){.flota-grid{grid-template-columns:1fr}}
+.flota-card{background:var(--white);border-radius:10px;padding:16px;border:1px solid var(--border)}
+.flota-patente{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;color:var(--navy);margin-bottom:4px}
+.flota-conductor{font-size:12px;color:var(--grey);margin-bottom:10px}
+.flota-status{display:inline-block;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:1px}
+/* FORM */
+.form-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:10px;font-weight:600;color:var(--grey);letter-spacing:1px;text-transform:uppercase}
+.fg input,.fg select{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:var(--navy);background:var(--bg);outline:none}
+.fg input:focus,.fg select:focus{border-color:var(--cyan)}
+.btn{padding:10px 22px;border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--cyan);color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,180,216,.3)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="topbar-back">← Volver al inicio</a>
+  <div class="topbar-logo"><span>SMART</span> HSE · Checklist Digital HSE</div>
+  <div style="font-size:11px;color:var(--cyan);font-weight:600;letter-spacing:1px">DS 132 · DS 44</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('vehiculo')">🚗 Checklist Vehículo</button>
+  <button class="tab-btn" onclick="showTab('fatiga')">😴 Fatiga y Somnolencia</button>
+  <button class="tab-btn" onclick="showTab('dashboard')">📊 Dashboard Flota</button>
+</div>
+
+<!-- ══ PESTAÑA 1: CHECKLIST VEHÍCULO ══ -->
+<div class="tab-panel active" id="panel-vehiculo">
+
+  <div class="card">
+    <div class="card-title">🚗 Datos del Vehículo</div>
+    <div class="form-row">
+      <div class="fg"><label>Patente</label><input id="v-patente" type="text" placeholder="XXXX-XX"/></div>
+      <div class="fg"><label>Tipo de Vehículo</label>
+        <select id="v-tipo">
+          <option>Camioneta 4x4</option><option>Van de Traslado</option><option>Minibús</option>
+          <option>Camión Liviano</option><option>Vehículo de Terreno</option>
+        </select>
+      </div>
+      <div class="fg"><label>Conductor</label><input id="v-conductor" type="text" placeholder="Nombre completo"/></div>
+      <div class="fg"><label>RUT Conductor</label><input id="v-rut" type="text" placeholder="XX.XXX.XXX-X"/></div>
+      <div class="fg"><label>Km Actual</label><input id="v-km" type="number" placeholder="0"/></div>
+      <div class="fg"><label>Faena / Destino</label><input id="v-faena" type="text" placeholder="Codelco RT / Spence"/></div>
+    </div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-row">
+      <div><span class="prog-title">Estado del Vehículo</span><br><span id="v-sem" class="sem sem-red" style="margin-top:4px;display:inline-block">Sin evaluar</span></div>
+      <div class="prog-pct" id="v-pct">0%</div>
+    </div>
+    <div class="prog-bar-bg"><div class="prog-bar-fill" id="v-fill" style="width:0%"></div></div>
+    <div class="stats-row">
+      <span>✅ OK: <strong id="v-ok">0</strong></span>
+      <span>❌ NC: <strong id="v-nc">0</strong></span>
+      <span>➖ N/A: <strong id="v-na">0</strong></span>
+    </div>
+  </div>
+
+  <div id="checklist-vehiculo"></div>
+
+  <div class="card" style="margin-top:16px">
+    <button class="btn btn-primary" onclick="guardarChecklist()">💾 Guardar y Enviar a Dashboard</button>
+    <span style="font-size:12px;color:var(--grey);margin-left:12px" id="v-save-msg"></span>
+  </div>
+</div>
+
+<!-- ══ PESTAÑA 2: FATIGA Y SOMNOLENCIA ══ -->
+<div class="tab-panel" id="panel-fatiga">
+  <div class="card">
+    <div class="card-title">😴 Control de Fatiga y Somnolencia — Pre-Turno</div>
+    <p style="font-size:13px;color:var(--grey);margin-bottom:20px;line-height:1.6">Responde honestamente. Una respuesta crítica afirmativa bloquea el acceso al vehículo hasta evaluación médica. Protocolo según DS 44 Art. 18 y estándar RC N°24 Codelco.</p>
+    <div id="fatiga-form"></div>
+    <div class="veredicto" id="veredicto-fatiga">
+      <div class="ver-icon" id="v-icon">—</div>
+      <div class="ver-title" id="v-title">—</div>
+      <div class="ver-sub" id="v-sub">—</div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="evaluarFatiga()">Evaluar Aptitud para Conducir</button>
+      <button class="btn" style="border:1px solid var(--border);background:transparent" onclick="resetFatiga()">Reiniciar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PESTAÑA 3: DASHBOARD ══ -->
+<div class="tab-panel" id="panel-dashboard">
+  <div class="kpi-grid">
+    <div class="kpi-box"><div class="kpi-val" id="d-total">0</div><div class="kpi-lbl">Checklists Hoy</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="d-aptos" style="color:var(--lime)">0</div><div class="kpi-lbl">Vehículos Aptos</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="d-criticos" style="color:var(--red)">0</div><div class="kpi-lbl">Con NC Críticas</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="d-mant" style="color:var(--orange)">0</div><div class="kpi-lbl">En Mantención</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🚗 Estado de Flota</div>
+    <div class="flota-grid" id="flota-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--grey);font-size:13px">
+        Realiza checklists de vehículos para ver el estado de la flota aquí.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ CHECKLIST VEHÍCULO — 22 ÍTEMS 5 SECCIONES ══
+const VEHICULO_ITEMS=[
+  {sec:'🔑 Documentación y Habilitación',items:[
+    {id:'v1',label:'Licencia de conducir vigente y clase correcta',critica:true},
+    {id:'v2',label:'Permiso de circulación vigente',critica:true},
+    {id:'v3',label:'Revisión técnica al día',critica:true},
+    {id:'v4',label:'SOAP / Seguro obligatorio vigente',critica:true},
+  ]},
+  {sec:'🛞 Estado Mecánico y Neumáticos',items:[
+    {id:'v5',label:'Neumáticos con banda de rodado adecuada (>2mm)',critica:true},
+    {id:'v6',label:'Neumático de repuesto en buen estado y accesible',critica:false},
+    {id:'v7',label:'Presión de neumáticos verificada',critica:false},
+    {id:'v8',label:'Frenos funcionando correctamente',critica:true},
+    {id:'v9',label:'Dirección sin holgura excesiva',critica:true},
+  ]},
+  {sec:'💡 Luces y Señalización',items:[
+    {id:'v10',label:'Luces delanteras y traseras operativas',critica:true},
+    {id:'v11',label:'Luces de emergencia y balizas funcionando',critica:true},
+    {id:'v12',label:'Reflectantes y señalización visible',critica:false},
+    {id:'v13',label:'Limpiadores de parabrisas operativos',critica:false},
+  ]},
+  {sec:'🔧 Equipamiento de Seguridad',items:[
+    {id:'v14',label:'Extintor vigente (fecha y presión OK)',critica:true},
+    {id:'v15',label:'Botiquín completo y sellado',critica:true},
+    {id:'v16',label:'Triangulos de seguridad presentes (x2)',critica:false},
+    {id:'v17',label:'Kit de herramientas básicas',critica:false},
+    {id:'v18',label:'Cinturones de seguridad para todos los asientos',critica:true},
+  ]},
+  {sec:'🪟 Condiciones Generales',items:[
+    {id:'v19',label:'Parabrisas sin fisuras que afecten visibilidad',critica:true},
+    {id:'v20',label:'Interior limpio y ordenado (sin objetos sueltos)',critica:false},
+    {id:'v21',label:'Nivel de combustible adecuado para el trayecto',critica:false},
+    {id:'v22',label:'Nivel de fluidos (aceite, agua, líquido frenos) OK',critica:false},
+  ]},
+]
+const vState={}
+
+function renderVehiculo(){
+  const cont=document.getElementById('checklist-vehiculo')
+  cont.innerHTML=''
+  VEHICULO_ITEMS.forEach(sec=>{
+    const secDiv=document.createElement('div')
+    secDiv.className='card'
+    secDiv.innerHTML=`<div class="section-header">${sec.sec}</div>`
+    sec.items.forEach(it=>{
+      const val=vState[it.id]||null
+      const row=document.createElement('div')
+      row.className='check-item'
+      row.innerHTML=`
+        <div class="check-label">${it.label}${it.critica?'<span class="critico">CRÍTICO</span>':''}</div>
+        <div class="check-btns">
+          <button class="cb cb-ok${val==='OK'?' active':''}" onclick="setV('${it.id}','OK')">OK</button>
+          <button class="cb cb-nc${val==='NC'?' active':''}" onclick="setV('${it.id}','NC')">NC</button>
+          <button class="cb cb-na${val==='NA'?' active':''}" onclick="setV('${it.id}','NA')">N/A</button>
+        </div>`
+      secDiv.appendChild(row)
+    })
+    cont.appendChild(secDiv)
+  })
+}
+
+function setV(id,val){
+  vState[id]=vState[id]===val?null:val
+  renderVehiculo()
+  updateVProgress()
+}
+
+function updateVProgress(){
+  const all=VEHICULO_ITEMS.flatMap(s=>s.items)
+  const critItems=all.filter(it=>it.critica)
+  const ok=Object.values(vState).filter(x=>x==='OK').length
+  const nc=Object.values(vState).filter(x=>x==='NC').length
+  const na=Object.values(vState).filter(x=>x==='NA').length
+  const critNC=critItems.filter(it=>vState[it.id]==='NC').length
+  const total=ok+nc+na
+  const pct=total>0?Math.round(ok/(ok+nc)*100)||0:0
+  document.getElementById('v-ok').textContent=ok
+  document.getElementById('v-nc').textContent=nc
+  document.getElementById('v-na').textContent=na
+  document.getElementById('v-pct').textContent=pct+'%'
+  const fill=document.getElementById('v-fill')
+  fill.style.width=pct+'%'
+  let sem,semClass
+  if(critNC>0){sem='CRÍTICO — No Apto';semClass='sem-red';fill.style.background='var(--red)'}
+  else if(nc>0){sem='MANTENCIÓN — Apto c/ Observaciones';semClass='sem-orange';fill.style.background='var(--orange)'}
+  else if(total===0){sem='Sin evaluar';semClass='sem-red';fill.style.background='var(--grey)'}
+  else{sem='APTO — Sin observaciones';semClass='sem-green';fill.style.background='var(--lime)'}
+  const semEl=document.getElementById('v-sem')
+  semEl.textContent=sem
+  semEl.className='sem '+semClass
+}
+
+function guardarChecklist(){
+  const patente=document.getElementById('v-patente').value||'Sin patente'
+  const conductor=document.getElementById('v-conductor').value||'Sin nombre'
+  const ok=Object.values(vState).filter(x=>x==='OK').length
+  const nc=Object.values(vState).filter(x=>x==='NC').length
+  const all=VEHICULO_ITEMS.flatMap(s=>s.items)
+  const critNC=all.filter(it=>it.critica&&vState[it.id]==='NC').length
+  const status=critNC>0?'CRÍTICO':nc>0?'MANTENCIÓN':'APTO'
+  // save to flota
+  const reg={patente,conductor,ok,nc,status,hora:new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}
+  flota.push(reg)
+  renderDashboard()
+  document.getElementById('v-save-msg').textContent='✅ Guardado en dashboard — '+new Date().toLocaleTimeString('es-CL')
+}
+
+// ══ FATIGA — 9 PREGUNTAS ══
+const FATIGA_QS=[
+  {id:'f1',text:'¿Has dormido menos de 5 horas en las últimas 24 horas?',critica:true},
+  {id:'f2',text:'¿Sientes que te puedes quedar dormido al conducir ahora mismo?',critica:true},
+  {id:'f3',text:'¿Has consumido medicamentos que puedan causar somnolencia?',critica:true},
+  {id:'f4',text:'¿Has ingerido alcohol en las últimas 12 horas?',critica:true},
+  {id:'f5',text:'¿Tienes más de 12 horas trabajadas en este turno?',critica:true},
+  {id:'f6',text:'¿Has tenido microsueños o "apagones" mientras conducías recientemente?',critica:false},
+  {id:'f7',text:'¿Te cuesta mantener los ojos abiertos en este momento?',critica:false},
+  {id:'f8',text:'¿Has sentido mareos o dificultad para concentrarte hoy?',critica:false},
+  {id:'f9',text:'¿Sientes tensión muscular intensa o dolor que afecte tu conducción?',critica:false},
+]
+const fState={}
+
+function renderFatiga(){
+  const cont=document.getElementById('fatiga-form')
+  cont.innerHTML=''
+  FATIGA_QS.forEach(q=>{
+    const val=fState[q.id]||null
+    const div=document.createElement('div')
+    div.className='fatiga-q'+(q.critica?' critica':'')
+    div.innerHTML=`
+      ${q.critica?'<span class="q-critica-tag">⚠️ PREGUNTA CRÍTICA</span>':''}
+      <div class="q-text">${q.text}</div>
+      <div class="q-btns">
+        <button class="q-btn si${val==='SI'?' active':''}" onclick="setF('${q.id}','SI')">SÍ</button>
+        <button class="q-btn no${val==='NO'?' active':''}" onclick="setF('${q.id}','NO')">NO</button>
+      </div>`
+    cont.appendChild(div)
+  })
+}
+
+function setF(id,val){
+  fState[id]=fState[id]===val?null:val
+  renderFatiga()
+}
+
+function evaluarFatiga(){
+  const critFail=FATIGA_QS.filter(q=>q.critica&&fState[q.id]==='SI').length
+  const cualFail=FATIGA_QS.filter(q=>fState[q.id]==='SI').length
+  const ver=document.getElementById('veredicto-fatiga')
+  ver.style.display='block'
+  if(critFail>0){
+    ver.className='veredicto no-apto'
+    document.getElementById('v-icon').textContent='🚫'
+    document.getElementById('v-title').textContent='NO APTO — Restricción Inmediata'
+    document.getElementById('v-sub').textContent=`Se detectaron ${critFail} factor(es) crítico(s) de fatiga. El conductor NO debe operar vehículos. Derivar a médico o jefatura inmediata. Protocolo RC N°24 Codelco activado.`
+  } else if(cualFail>=2){
+    ver.className='veredicto no-apto'
+    document.getElementById('v-icon').textContent='⚠️'
+    document.getElementById('v-title').textContent='CONDICIONAL — Evaluación Requerida'
+    document.getElementById('v-sub').textContent=`Se detectaron ${cualFail} factores de fatiga moderados. Reportar a supervisor antes de iniciar conducción. Monitoreo continuo durante el turno.`
+  } else {
+    ver.className='veredicto apto'
+    document.getElementById('v-icon').textContent='✅'
+    document.getElementById('v-title').textContent='APTO — Sin Restricciones'
+    document.getElementById('v-sub').textContent='El conductor no presenta factores de fatiga críticos. Apto para operar vehículos en el turno actual. Registro guardado.'
+  }
+}
+
+function resetFatiga(){
+  FATIGA_QS.forEach(q=>delete fState[q.id])
+  document.getElementById('veredicto-fatiga').style.display='none'
+  renderFatiga()
+}
+
+// ══ DASHBOARD ══
+const flota=[]
+function renderDashboard(){
+  const total=flota.length
+  const aptos=flota.filter(f=>f.status==='APTO').length
+  const criticos=flota.filter(f=>f.status==='CRÍTICO').length
+  const mant=flota.filter(f=>f.status==='MANTENCIÓN').length
+  document.getElementById('d-total').textContent=total
+  document.getElementById('d-aptos').textContent=aptos
+  document.getElementById('d-criticos').textContent=criticos
+  document.getElementById('d-mant').textContent=mant
+  const grid=document.getElementById('flota-grid')
+  if(flota.length===0){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--grey);font-size:13px">Realiza checklists de vehículos para ver el estado de la flota aquí.</div>'
+    return
+  }
+  grid.innerHTML=''
+  flota.forEach(f=>{
+    const card=document.createElement('div')
+    card.className='flota-card'
+    const colMap={APTO:'var(--lime)',CRÍTICO:'var(--red)',MANTENCIÓN:'var(--orange)'}
+    const col=colMap[f.status]||'var(--grey)'
+    card.innerHTML=`
+      <div class="flota-patente">🚗 ${f.patente}</div>
+      <div class="flota-conductor">👤 ${f.conductor} · ${f.hora}</div>
+      <span class="flota-status" style="background:rgba(0,0,0,.05);color:${col};border:1px solid ${col}">${f.status}</span>
+      <div style="margin-top:10px;font-size:12px;color:var(--grey)">OK: ${f.ok} · NC: ${f.nc}</div>`
+    grid.appendChild(card)
+  })
+}
+
+function showTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'))
+  document.getElementById('panel-'+id).classList.add('active')
+  event.target.classList.add('active')
+}
+
+// INIT
+renderVehiculo()
+renderFatiga()
+renderDashboard()
+</script>
+</body>
+</html>

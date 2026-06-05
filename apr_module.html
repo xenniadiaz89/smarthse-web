@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Auditor APR con Base Legal — Smart HSE</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@300;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#002B49;--cyan:#00B4D8;--lime:#7FBA00;--red:#E53E3E;--orange:#DD6B20;--white:#fff;--bg:#f4f8fb;--grey:#6B7280;--border:rgba(0,43,73,.1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;font-weight:300;background:var(--bg);color:var(--navy)}
+.topbar{background:var(--navy);padding:12px 32px;display:flex;align-items:center;justify-content:space-between}
+.topbar-logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;color:#fff;letter-spacing:2px}
+.topbar-logo span{color:var(--cyan)}
+.topbar-back{font-size:12px;color:rgba(255,255,255,.6);text-decoration:none;display:flex;align-items:center;gap:6px}
+.topbar-back:hover{color:var(--cyan)}
+/* STEPPER */
+.stepper{background:var(--white);border-bottom:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;gap:0}
+.step-item{display:flex;align-items:center;gap:10px;flex:1}
+.step-circle{width:36px;height:36px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--grey);flex-shrink:0;transition:all .3s}
+.step-circle.active{background:var(--cyan);border-color:var(--cyan);color:#fff}
+.step-circle.done{background:var(--lime);border-color:var(--lime);color:#fff}
+.step-label{font-size:12px;font-weight:600;color:var(--grey);transition:color .3s}
+.step-label.active{color:var(--navy)}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 8px}
+.step-line.done{background:var(--lime)}
+/* MAIN */
+.main{padding:28px 32px;max-width:900px;margin:0 auto}
+.card{background:var(--white);border-radius:12px;padding:24px;border:1px solid var(--border);margin-bottom:18px}
+.card-title{font-family:'Montserrat',sans-serif;font-weight:600;font-size:15px;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.form-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.form-row-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px}
+@media(max-width:600px){.form-row,.form-row-2{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:10px;font-weight:600;color:var(--grey);letter-spacing:1px;text-transform:uppercase}
+.fg input,.fg select,.fg textarea{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:var(--navy);background:var(--bg);outline:none;resize:vertical}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--cyan)}
+/* RIESGO ITEMS */
+.riesgo-card{background:var(--bg);border-radius:10px;padding:14px;border:1px solid var(--border);margin-bottom:10px}
+.riesgo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.riesgo-num{font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;color:var(--cyan);letter-spacing:1px}
+.btn-del{padding:4px 10px;border-radius:10px;border:1px solid rgba(229,62,62,.3);background:rgba(229,62,62,.06);color:var(--red);font-size:11px;font-weight:600;cursor:pointer}
+/* HALLAZGOS */
+.hall-card{background:var(--bg);border-radius:10px;padding:14px;border:1px solid var(--border);margin-bottom:10px}
+/* BTNS */
+.btn{padding:10px 22px;border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:var(--cyan);color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,180,216,.3)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--navy)}
+.btn-add{background:rgba(0,180,216,.1);color:var(--cyan);border:1px solid rgba(0,180,216,.3);padding:7px 16px;font-size:12px}
+.btn-nav{background:var(--navy);color:#fff;padding:10px 24px;border-radius:22px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-nav:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,43,73,.2)}
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:580px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi-box{background:var(--white);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--border)}
+.kpi-val{font-family:'Montserrat',sans-serif;font-size:26px;font-weight:700;color:var(--cyan)}
+.kpi-lbl{font-size:10px;font-weight:600;color:var(--grey);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+/* STREAMING */
+.stream-output{background:var(--navy);border-radius:12px;padding:24px;color:rgba(255,255,255,.85);font-size:13px;line-height:1.85;min-height:200px;white-space:pre-wrap;font-family:'Inter',sans-serif;position:relative}
+.stream-output.empty{display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3)}
+.cursor{display:inline-block;width:2px;height:14px;background:var(--cyan);vertical-align:text-bottom;animation:blink .8s step-start infinite}
+@keyframes blink{50%{opacity:0}}
+/* SEMAFORO BADGE */
+.badge-sem{display:inline-block;padding:8px 22px;border-radius:24px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;letter-spacing:2px;margin-bottom:16px}
+.b-aprobado{background:rgba(127,186,0,.1);color:var(--lime);border:2px solid rgba(127,186,0,.4)}
+.b-condicional{background:rgba(221,107,32,.1);color:var(--orange);border:2px solid rgba(221,107,32,.3)}
+.b-rechazado{background:rgba(229,62,62,.08);color:var(--red);border:2px solid rgba(229,62,62,.3)}
+/* STEPS */
+.step-panel{display:none}
+.step-panel.active{display:block}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="topbar-back">← Volver al inicio</a>
+  <div class="topbar-logo"><span>SMART</span> HSE · Auditor APR con Base Legal</div>
+  <div style="font-size:11px;color:var(--cyan);font-weight:600;letter-spacing:1px">DS 44 · Ley 16.744</div>
+</div>
+
+<!-- STEPPER -->
+<div class="stepper">
+  <div class="step-item">
+    <div class="step-circle active" id="sc1">1</div>
+    <div class="step-label active" id="sl1">Empresa y Actividad</div>
+  </div>
+  <div class="step-line" id="line1"></div>
+  <div class="step-item">
+    <div class="step-circle" id="sc2">2</div>
+    <div class="step-label" id="sl2">Riesgos Críticos</div>
+  </div>
+  <div class="step-line" id="line2"></div>
+  <div class="step-item">
+    <div class="step-circle" id="sc3">3</div>
+    <div class="step-label" id="sl3">Hallazgos</div>
+  </div>
+  <div class="step-line" id="line3"></div>
+  <div class="step-item">
+    <div class="step-circle" id="sc4">4</div>
+    <div class="step-label" id="sl4">Dictamen APR</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══ PASO 1: EMPRESA Y ACTIVIDAD ══ -->
+<div class="step-panel active" id="step1">
+  <div class="card">
+    <div class="card-title">🏢 Paso 1 — Datos de la Empresa y Actividad</div>
+    <div class="form-row">
+      <div class="fg"><label>Empresa Contratista</label><input id="a-empresa" type="text" placeholder="Omega Servicios SPA"/></div>
+      <div class="fg"><label>RUT Empresa</label><input id="a-rut" type="text" placeholder="76.XXX.XXX-X"/></div>
+      <div class="fg"><label>Mandante / Faena</label><input id="a-mandante" type="text" placeholder="Codelco RT / BHP Spence"/></div>
+      <div class="fg"><label>N° Contrato</label><input id="a-contrato" type="text" placeholder="4600XXXXXX"/></div>
+      <div class="fg"><label>N° Trabajadores</label><input id="a-dotacion" type="number" placeholder="0"/></div>
+      <div class="fg"><label>Auditor APR</label><input id="a-auditor" type="text" placeholder="Xennia Díaz"/></div>
+    </div>
+    <div class="form-row-2">
+      <div class="fg">
+        <label>Tipo de Actividad / Proceso</label>
+        <select id="a-tipo">
+          <option>Geomensura y Topografía con RPA/Drones</option>
+          <option>Mantención Industrial</option>
+          <option>Obras Civiles Mineras</option>
+          <option>Traslado de Personal</option>
+          <option>Servicios de Alimentación en Faena</option>
+          <option>Instalación y Montaje Eléctrico</option>
+          <option>Soldadura y Corte</option>
+          <option>Perforación y Tronadura</option>
+          <option>Otro — especificar abajo</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Descripción Específica de la Actividad</label>
+        <textarea id="a-descripcion" rows="3" placeholder="Describe la actividad específica que se está analizando en el APR..."/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="fg">
+        <label>Lugar de Trabajo</label>
+        <input id="a-lugar" type="text" placeholder="Sector / Área / Nivel / Coordenadas"/>
+      </div>
+      <div class="fg">
+        <label>Fecha del APR</label>
+        <input id="a-fecha" type="date"/>
+      </div>
+      <div class="fg">
+        <label>Condiciones Ambientales</label>
+        <select id="a-condiciones">
+          <option>Normales</option>
+          <option>Viento fuerte (>25 km/h)</option>
+          <option>Alta temperatura (>35°C)</option>
+          <option>Baja visibilidad / polvo</option>
+          <option>Lluvia / humedad extrema</option>
+          <option>Noche / baja iluminación</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:8px">
+      <button class="btn-nav" onclick="goStep(2)">Siguiente → Riesgos Críticos</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PASO 2: RIESGOS CRÍTICOS ══ -->
+<div class="step-panel" id="step2">
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between">
+      ⚠️ Paso 2 — Identificación de Riesgos Críticos
+      <button class="btn btn-add" onclick="addRiesgo()">+ Agregar Riesgo</button>
+    </div>
+    <p style="font-size:12px;color:var(--grey);margin-bottom:16px;line-height:1.6">Identifica los peligros y riesgos críticos asociados a la actividad. El sistema los procesará con la base legal del DS 44 y normativa aplicable.</p>
+    <div id="riesgos-list"></div>
+    <div style="margin-top:8px;display:flex;gap:12px">
+      <button class="btn btn-outline" onclick="goStep(1)">← Anterior</button>
+      <button class="btn-nav" onclick="goStep(3)">Siguiente → Hallazgos</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PASO 3: HALLAZGOS ══ -->
+<div class="step-panel" id="step3">
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between">
+      🔍 Paso 3 — Hallazgos Detectados en Terreno
+      <button class="btn btn-add" onclick="addHallazgoAPR()">+ Hallazgo</button>
+    </div>
+    <p style="font-size:12px;color:var(--grey);margin-bottom:16px;line-height:1.6">Registra las condiciones inseguras, actos inseguros o incumplimientos normativos detectados. La IA los clasificará con artículo legal exacto.</p>
+    <div id="hallazgos-apr-list"></div>
+    <div style="margin-top:8px;display:flex;gap:12px">
+      <button class="btn btn-outline" onclick="goStep(2)">← Anterior</button>
+      <button class="btn-nav" onclick="generarDictamenAPR()">🤖 Generar Dictamen APR con IA →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PASO 4: DICTAMEN ══ -->
+<div class="step-panel" id="step4">
+  <div class="kpi-row">
+    <div class="kpi-box"><div class="kpi-val" id="apr-nc" style="color:var(--red)">0</div><div class="kpi-lbl">No Conformidades</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="apr-obs" style="color:var(--orange)">0</div><div class="kpi-lbl">Observaciones</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="apr-arts" style="color:var(--cyan)">0</div><div class="kpi-lbl">Arts. Legales Citados</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="apr-riesgos">0</div><div class="kpi-lbl">Riesgos Analizados</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📄 Dictamen APR — Base Legal DS 44</div>
+    <div id="badge-apr-wrap" style="margin-bottom:12px"></div>
+    <div class="stream-output empty" id="stream-out">Presiona "Generar Dictamen" para iniciar el análisis con IA</div>
+    <div style="margin-top:14px;display:flex;gap:12px;flex-wrap:wrap" id="apr-actions" style="display:none">
+      <button class="btn btn-outline" onclick="descargarAPR()">⬇️ Descargar .txt</button>
+      <button class="btn btn-outline" onclick="goStep(1)">← Nueva APR</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- end main -->
+
+<script>
+let currentStep=1
+const riesgos=[]
+const hallazgosAPR=[]
+
+// RIESGO TEMPLATE
+const RIESGO_TIPOS=['Caída a distinto nivel','Caída al mismo nivel','Golpeado por objeto','Atrapamiento','Contacto con energía eléctrica','Exposición a material particulado / sílice','Exposición a ruido','Tránsito de vehículos / volcamiento','Sobreesfuerzo / ergonómico','Exposición a radiación UV','Riesgo de incendio / explosión','Falla de equipos críticos']
+const CONSECUENCIAS=['Muerte / Incapacidad permanente','Lesión grave / hospitalización','Lesión leve / primeros auxilios','Daño a equipos o propiedad','Impacto ambiental']
+const FRECUENCIAS=['Diaria','Semanal','Mensual','Ocasional']
+
+function addRiesgo(){
+  riesgos.push({tipo:'',descripcion:'',frecuencia:'Diaria',consecuencia:'Lesión grave / hospitalización',control:''})
+  renderRiesgos()
+}
+function renderRiesgos(){
+  const cont=document.getElementById('riesgos-list')
+  if(riesgos.length===0){cont.innerHTML='<p style="font-size:13px;color:var(--grey);text-align:center;padding:20px">Agrega los riesgos críticos de la actividad.</p>';return}
+  cont.innerHTML=''
+  riesgos.forEach((r,i)=>{
+    const div=document.createElement('div')
+    div.className='riesgo-card'
+    div.innerHTML=`
+      <div class="riesgo-header">
+        <span class="riesgo-num">RIESGO N°${i+1}</span>
+        <button class="btn-del" onclick="riesgos.splice(${i},1);renderRiesgos()">✕</button>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Tipo de Peligro</label>
+          <select onchange="riesgos[${i}].tipo=this.value">
+            <option value="">— Seleccionar —</option>
+            ${RIESGO_TIPOS.map(t=>`<option${r.tipo===t?' selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fg"><label>Frecuencia de Exposición</label>
+          <select onchange="riesgos[${i}].frecuencia=this.value">
+            ${FRECUENCIAS.map(f=>`<option${r.frecuencia===f?' selected':''}>${f}</option>`).join('')}
+          </select>
+        </div>
+        <div class="fg"><label>Consecuencia Potencial</label>
+          <select onchange="riesgos[${i}].consecuencia=this.value">
+            ${CONSECUENCIAS.map(c=>`<option${r.consecuencia===c?' selected':''}>${c}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="fg"><label>Descripción del Riesgo</label><input value="${r.descripcion}" placeholder="Describe la situación específica..." onchange="riesgos[${i}].descripcion=this.value"/></div>
+        <div class="fg"><label>Control Existente</label><input value="${r.control}" placeholder="Medida de control actual..." onchange="riesgos[${i}].control=this.value"/></div>
+      </div>`
+    cont.appendChild(div)
+  })
+}
+
+function addHallazgoAPR(){
+  hallazgosAPR.push({desc:'',tipo:'NC',norma:''})
+  renderHallazgosAPR()
+}
+function renderHallazgosAPR(){
+  const cont=document.getElementById('hallazgos-apr-list')
+  if(hallazgosAPR.length===0){cont.innerHTML='<p style="font-size:13px;color:var(--grey);text-align:center;padding:20px">No hay hallazgos. Puedes proceder sin hallazgos o agregar los detectados en terreno.</p>';return}
+  cont.innerHTML=''
+  hallazgosAPR.forEach((h,i)=>{
+    const div=document.createElement('div')
+    div.className='hall-card'
+    div.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;color:var(--cyan)">HALLAZGO N°${i+1}</span>
+        <button class="btn-del" onclick="hallazgosAPR.splice(${i},1);renderHallazgosAPR()">✕</button>
+      </div>
+      <div class="form-row">
+        <div class="fg" style="grid-column:1/3"><label>Descripción del Hallazgo</label><textarea rows="2" placeholder="Describe la condición o acto inseguro..." onchange="hallazgosAPR[${i}].desc=this.value">${h.desc}</textarea></div>
+        <div class="fg"><label>Clasificación</label>
+          <select onchange="hallazgosAPR[${i}].tipo=this.value">
+            <option${h.tipo==='NC'?' selected':''}>NC</option>
+            <option${h.tipo==='Observación'?' selected':''}>Observación</option>
+            <option${h.tipo==='Riesgo Inmediato'?' selected':''}>Riesgo Inmediato</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Norma / Artículo Potencialmente Infringido (opcional)</label><input value="${h.norma}" placeholder="Ej: DS 44 Art. 22, RC N°16..." onchange="hallazgosAPR[${i}].norma=this.value"/></div>`
+    cont.appendChild(div)
+  })
+}
+
+async function generarDictamenAPR(){
+  goStep(4)
+  // Update KPIs
+  const nc=hallazgosAPR.filter(h=>h.tipo==='NC'||h.tipo==='Riesgo Inmediato').length
+  const obs=hallazgosAPR.filter(h=>h.tipo==='Observación').length
+  document.getElementById('apr-nc').textContent=nc
+  document.getElementById('apr-obs').textContent=obs
+  document.getElementById('apr-riesgos').textContent=riesgos.length
+  // Badge
+  const bw=document.getElementById('badge-apr-wrap')
+  if(nc===0&&obs===0)bw.innerHTML='<span class="badge-sem b-aprobado">✅ APR APROBADA</span>'
+  else if(nc===0)bw.innerHTML='<span class="badge-sem b-condicional">⚠️ CONDICIONAL</span>'
+  else bw.innerHTML='<span class="badge-sem b-rechazado">❌ APR CON NC — NO INICIAR</span>'
+
+  const riesgosText=riesgos.map((r,i)=>`R${i+1}: ${r.tipo||'Sin tipo'} — ${r.descripcion} — Frec:${r.frecuencia} — Consec:${r.consecuencia} — Control:${r.control||'Sin control'}`).join('\n')||'Sin riesgos registrados'
+  const hallText=hallazgosAPR.map((h,i)=>`H${i+1}[${h.tipo}]: ${h.desc} — Norma ref: ${h.norma||'Por determinar'}`).join('\n')||'Sin hallazgos'
+
+  const prompt=`Eres un auditor experto en APR (Análisis de Peligros y Riesgos) para la gran minería chilena.
+
+Genera el Dictamen APR oficial con Base Legal para:
+Empresa: ${document.getElementById('a-empresa').value||'[Empresa]'}
+Mandante: ${document.getElementById('a-mandante').value||'[Mandante]'}
+Actividad: ${document.getElementById('a-tipo').value} — ${document.getElementById('a-descripcion').value||''}
+Lugar: ${document.getElementById('a-lugar').value||'[Lugar]'}
+Dotación: ${document.getElementById('a-dotacion').value||'0'} trabajadores
+Condiciones: ${document.getElementById('a-condiciones').value}
+Auditor: ${document.getElementById('a-auditor').value||'Xennia Díaz'}
+Fecha: ${document.getElementById('a-fecha').value||new Date().toLocaleDateString('es-CL')}
+
+RIESGOS IDENTIFICADOS (${riesgos.length}):
+${riesgosText}
+
+HALLAZGOS (${hallazgosAPR.length}):
+${hallText}
+
+Genera el dictamen APR completo con:
+1. ENCABEZADO OFICIAL
+2. DESCRIPCIÓN DE LA ACTIVIDAD Y CONDICIONES
+3. ANÁLISIS DE PELIGROS Y RIESGOS — tabla con: Peligro | Riesgo | Consecuencia | Nivel (A/M/B) | Control existente | Control adicional requerido | Artículo DS 44 / Normativa aplicable
+4. HALLAZGOS CLASIFICADOS — cada uno con: descripción, tipo (NC/Observación/Riesgo Inmediato), artículo legal exacto infringido, medida correctiva y plazo
+5. KPIs: total NC, total Observaciones, cantidad de artículos legales citados
+6. VEREDICTO: APR APROBADA / CONDICIONAL / RECHAZADA — con justificación técnica
+7. CONDICIONES PARA INICIO DE TRABAJO (lista de requisitos previos)
+8. FIRMA del auditor
+
+Cita artículos específicos de DS 44, DS 72, Ley 16.744, DS 594, DS 132 y estándares Codelco según corresponda.`
+
+  const out=document.getElementById('stream-out')
+  out.className='stream-output'
+  out.innerHTML='<span style="color:var(--cyan)">Analizando riesgos y base legal</span><span class="cursor"></span>'
+  document.getElementById('apr-actions').style.display='flex'
+
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:'Eres auditor experto en APR y base legal HSE minera chilena. Generas dictámenes técnicos precisos con citas exactas de artículos normativos (DS 44, DS 72, Ley 16.744, DS 594, DS 132). Responde en español técnico-formal.',
+        messages:[{role:'user',content:prompt}]
+      })
+    })
+    const d=await r.json()
+    const txt=d.content?.find(x=>x.type==='text')?.text||'Sin respuesta.'
+    // Simulate streaming
+    out.textContent=''
+    let i=0
+    const cursor=document.createElement('span')
+    cursor.className='cursor'
+    const interval=setInterval(()=>{
+      if(i<txt.length){
+        out.textContent+=txt[i]
+        i++
+        out.scrollTop=out.scrollHeight
+        // count arts cited
+        const artsCount=(out.textContent.match(/Art\./g)||[]).length
+        document.getElementById('apr-arts').textContent=artsCount
+      }else{clearInterval(interval)}
+    },8)
+  }catch(e){
+    out.textContent='Error al conectar con IA. Verifica tu conexión e inténtalo de nuevo.'
+  }
+}
+
+function goStep(n){
+  currentStep=n
+  document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'))
+  document.getElementById('step'+n).classList.add('active')
+  // Update stepper
+  for(let i=1;i<=4;i++){
+    const sc=document.getElementById('sc'+i)
+    const sl=document.getElementById('sl'+i)
+    if(i<n){sc.className='step-circle done';sc.textContent='✓'}
+    else if(i===n){sc.className='step-circle active';sc.textContent=i;sl.className='step-label active'}
+    else{sc.className='step-circle';sc.textContent=i;sl.className='step-label'}
+    if(i<4){
+      document.getElementById('line'+i).className='step-line'+(i<n?' done':'')
+    }
+  }
+}
+
+function descargarAPR(){
+  const txt=document.getElementById('stream-out').textContent
+  if(!txt||txt.includes('Analizando'))return
+  const empresa=document.getElementById('a-empresa').value||'SmartHSE'
+  const a=document.createElement('a')
+  a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}))
+  a.download=`Dictamen_APR_${empresa.replace(/\s/g,'_')}.txt`;a.click()
+}
+
+// INIT
+renderRiesgos()
+renderHallazgosAPR()
+// Auto fecha
+document.getElementById('a-fecha').value=new Date().toISOString().split('T')[0]
+</script>
+</body>
+</html>

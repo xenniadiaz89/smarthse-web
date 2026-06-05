@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cartas N/A + Informe Terreno — Smart HSE</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@300;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#002B49;--cyan:#00B4D8;--lime:#7FBA00;--red:#E53E3E;--orange:#DD6B20;--white:#fff;--bg:#f4f8fb;--grey:#6B7280;--border:rgba(0,43,73,.1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;font-weight:300;background:var(--bg);color:var(--navy)}
+.topbar{background:var(--navy);padding:12px 32px;display:flex;align-items:center;justify-content:space-between}
+.topbar-logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;color:#fff;letter-spacing:2px}
+.topbar-logo span{color:var(--cyan)}
+.topbar-back{font-size:12px;color:rgba(255,255,255,.6);text-decoration:none;display:flex;align-items:center;gap:6px}
+.topbar-back:hover{color:var(--cyan)}
+.tab-bar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;display:flex}
+.tab-btn{padding:16px 24px;font-size:13px;font-weight:600;color:var(--grey);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+.tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab-panel{display:none;padding:28px 32px;max-width:1000px;margin:0 auto}
+.tab-panel.active{display:block}
+.card{background:var(--white);border-radius:12px;padding:22px;border:1px solid var(--border);margin-bottom:18px}
+.card-title{font-family:'Montserrat',sans-serif;font-weight:600;font-size:14px;color:var(--navy);margin-bottom:14px}
+.form-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.form-row-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+@media(max-width:600px){.form-row,.form-row-2{grid-template-columns:1fr}}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:10px;font-weight:600;color:var(--grey);letter-spacing:1px;text-transform:uppercase}
+.fg input,.fg select,.fg textarea{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:var(--navy);background:var(--bg);outline:none;resize:vertical}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--cyan)}
+.btn{padding:9px 20px;border-radius:22px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .2s;letter-spacing:.3px}
+.btn-primary{background:var(--cyan);color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,180,216,.3)}
+.btn-add{background:rgba(0,180,216,.1);color:var(--cyan);border:1px solid rgba(0,180,216,.3)}
+.btn-del{background:rgba(229,62,62,.08);color:var(--red);border:1px solid rgba(229,62,62,.2)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--navy)}
+/* TABLA EDITABLE */
+.table-wrap{overflow-x:auto}
+.edit-table{width:100%;border-collapse:collapse;min-width:600px}
+.edit-table th{font-size:10px;font-weight:700;color:var(--grey);letter-spacing:1.5px;text-transform:uppercase;padding:10px 12px;background:var(--bg);text-align:left}
+.edit-table td{padding:8px 6px;border-bottom:1px solid var(--border);vertical-align:middle}
+.edit-table td input,.edit-table td select{width:100%;padding:6px 8px;border:1px solid transparent;border-radius:6px;font-size:12px;background:transparent;color:var(--navy);outline:none;font-family:'Inter',sans-serif}
+.edit-table td input:focus,.edit-table td select:focus{border-color:var(--cyan);background:var(--bg)}
+/* IA OUTPUT */
+.ia-output{background:var(--navy);border-radius:10px;padding:20px;color:rgba(255,255,255,.85);font-size:12px;line-height:1.85;min-height:100px;white-space:pre-wrap;font-family:'Inter',sans-serif;margin-top:14px}
+.ia-output.empty{display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:13px;min-height:80px}
+/* HALLAZGOS */
+.hallazgo-card{background:var(--bg);border-radius:10px;padding:16px;border:1px solid var(--border);margin-bottom:12px;position:relative}
+.hallazgo-num{font-family:'Montserrat',sans-serif;font-weight:700;font-size:11px;color:var(--cyan);margin-bottom:10px;letter-spacing:1px}
+.riesgo-tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:8px}
+.r-alto{background:rgba(229,62,62,.1);color:var(--red);border:1px solid rgba(229,62,62,.3)}
+.r-medio{background:rgba(221,107,32,.1);color:var(--orange);border:1px solid rgba(221,107,32,.3)}
+.r-bajo{background:rgba(127,186,0,.1);color:var(--lime);border:1px solid rgba(127,186,0,.3)}
+/* FIRMA */
+.firma-box{border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.firma-linea{width:200px;border-bottom:1px solid var(--navy);margin-bottom:6px}
+.firma-nombre{font-size:12px;font-weight:600;color:var(--navy)}
+.firma-cargo{font-size:11px;color:var(--grey)}
+.spinner{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="topbar-back">← Volver al inicio</a>
+  <div class="topbar-logo"><span>SMART</span> HSE · Cartas N/A + Informe Terreno</div>
+  <div style="font-size:11px;color:var(--cyan);font-weight:600;letter-spacing:1px">DS 44 · RESSO V9</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('cartas')">✉️ Cartas de No Aplicabilidad</button>
+  <button class="tab-btn" onclick="showTab('terreno')">📍 Informe de Terreno</button>
+</div>
+
+<!-- ══ PESTAÑA 1: CARTAS N/A ══ -->
+<div class="tab-panel active" id="panel-cartas">
+
+  <div class="card">
+    <div class="card-title">📋 Datos del Contrato</div>
+    <div class="form-row">
+      <div class="fg"><label>Empresa Contratista</label><input id="c-empresa" type="text" placeholder="Omega Servicios SPA"/></div>
+      <div class="fg"><label>RUT Empresa</label><input id="c-rut" type="text" placeholder="76.XXX.XXX-X"/></div>
+      <div class="fg"><label>N° Contrato</label><input id="c-contrato" type="text" placeholder="9100XXXXXX"/></div>
+      <div class="fg"><label>Mandante</label><input id="c-mandante" type="text" placeholder="Codelco / BHP Spence"/></div>
+      <div class="fg"><label>Representante Legal</label><input id="c-rep" type="text" placeholder="Nombre completo"/></div>
+      <div class="fg"><label>Ciudad y Fecha</label><input id="c-ciudad" type="text" placeholder="Calama, junio 2026"/></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+      📋 Tabla de Ítems — Cartas de No Aplicabilidad
+      <button class="btn btn-add" onclick="addItem()">+ Agregar Ítem</button>
+    </div>
+    <div class="table-wrap">
+      <table class="edit-table">
+        <thead><tr>
+          <th>#</th><th style="min-width:200px">Ítem / Requisito</th><th style="min-width:150px">Normativa de Referencia</th><th style="min-width:200px">Justificación de No Aplicabilidad</th><th>Acción</th>
+        </tr></thead>
+        <tbody id="cartas-tbody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:16px">
+      <button class="btn btn-primary" onclick="generarTodasCartas()">🤖 Generar Todas las Cartas con IA</button>
+    </div>
+  </div>
+
+  <div class="card" id="cartas-output-wrap" style="display:none">
+    <div class="card-title">📄 Cartas Generadas</div>
+    <div class="ia-output" id="ia-cartas"></div>
+    <div style="margin-top:12px;display:flex;gap:10px">
+      <button class="btn btn-outline" onclick="descargar('ia-cartas','Cartas_NA')">⬇️ Descargar .txt</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PESTAÑA 2: INFORME TERRENO ══ -->
+<div class="tab-panel" id="panel-terreno">
+
+  <!-- SECCIÓN 1: DATOS GENERALES -->
+  <div class="card">
+    <div class="card-title">1️⃣ Datos Generales de la Visita</div>
+    <div class="form-row">
+      <div class="fg"><label>Empresa</label><input id="t-empresa" type="text" placeholder="Omega Servicios SPA"/></div>
+      <div class="fg"><label>Faena / Cliente</label><input id="t-faena" type="text" placeholder="Codelco RT / BHP Spence"/></div>
+      <div class="fg"><label>Área Específica</label><input id="t-area" type="text" placeholder="Sector Campamento / Frente trabajo"/></div>
+      <div class="fg"><label>Fecha de Visita</label><input id="t-fecha" type="date"/></div>
+      <div class="fg"><label>Asesor HSE</label><input id="t-auditor" type="text" placeholder="Xennia Díaz"/></div>
+      <div class="fg"><label>N° Trabajadores en Terreno</label><input id="t-trabajadores" type="number" placeholder="0"/></div>
+    </div>
+    <div class="form-row-2">
+      <div class="fg"><label>Objetivo de la Visita</label><textarea id="t-objetivo" rows="2" placeholder="Describir el objetivo principal de la visita a terreno..."/></div>
+      <div class="fg"><label>Actividades Observadas</label><textarea id="t-actividades" rows="2" placeholder="Enumerar las actividades inspeccionadas..."/></div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 2: CHEQUEO DOCUMENTAL -->
+  <div class="card">
+    <div class="card-title">2️⃣ Chequeo de Documentación y Controles Críticos</div>
+    <div id="chequeo-list"></div>
+  </div>
+
+  <!-- SECCIÓN 3: HALLAZGOS -->
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+      3️⃣ Hallazgos y Observaciones
+      <button class="btn btn-add" onclick="addHallazgo()">+ Hallazgo</button>
+    </div>
+    <div id="hallazgos-list"></div>
+  </div>
+
+  <!-- SECCIÓN 4: PLAN DE ACCIÓN -->
+  <div class="card">
+    <div class="card-title">4️⃣ Plan de Acción Correctiva</div>
+    <div class="table-wrap">
+      <table class="edit-table">
+        <thead><tr>
+          <th>#</th><th>Hallazgo</th><th>Medida Correctiva</th><th>Responsable</th><th>Plazo</th><th>Estado</th>
+        </tr></thead>
+        <tbody id="plan-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 5: FOTOS -->
+  <div class="card">
+    <div class="card-title">5️⃣ Registro Fotográfico</div>
+    <p style="font-size:12px;color:var(--grey);margin-bottom:12px">Describe las evidencias fotográficas tomadas en terreno:</p>
+    <div class="form-row-2">
+      <div class="fg"><label>Foto 1 — Descripción</label><input id="foto1" type="text" placeholder="Ej: Estado de extintor en bodega norte"/></div>
+      <div class="fg"><label>Foto 2 — Descripción</label><input id="foto2" type="text" placeholder="Ej: Checklist vehículo firmado por conductor"/></div>
+      <div class="fg"><label>Foto 3 — Descripción</label><input id="foto3" type="text" placeholder="Ej: Señalética de seguridad sector obras"/></div>
+      <div class="fg"><label>Foto 4 — Descripción</label><input id="foto4" type="text" placeholder="Ej: EPP en uso correcto"/></div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 6: CONCLUSIONES -->
+  <div class="card">
+    <div class="card-title">6️⃣ Conclusiones y Recomendaciones</div>
+    <div class="fg"><textarea id="t-conclusiones" rows="4" placeholder="Ingresa las conclusiones de la visita o genera automáticamente con IA..."/></div>
+    <div style="margin-top:10px">
+      <button class="btn btn-primary" onclick="generarInforme()">🤖 Generar Informe Completo con IA</button>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 7: FIRMAS -->
+  <div class="card">
+    <div class="card-title">7️⃣ Bloque de Firmas</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px">
+      <div class="firma-box">
+        <div class="firma-linea"></div>
+        <div class="firma-nombre" id="firma1-nombre">Xennia Díaz Díaz</div>
+        <div class="firma-cargo">Asesor en Prevención de Riesgos<br>Omega Servicios SPA</div>
+      </div>
+      <div class="firma-box">
+        <div class="firma-linea"></div>
+        <div class="fg" style="width:100%;text-align:left"><label>Nombre Supervisor / Administrador</label><input id="firma2-nombre" type="text" placeholder="Nombre del Supervisor"/></div>
+        <div class="firma-cargo" style="margin-top:8px">Supervisor en Terreno</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="informe-output-wrap" style="display:none">
+    <div class="card-title">📄 Informe Generado</div>
+    <div class="ia-output" id="ia-informe"></div>
+    <div style="margin-top:12px;display:flex;gap:10px">
+      <button class="btn btn-outline" onclick="descargar('ia-informe','Informe_Terreno')">⬇️ Descargar .txt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ CARTAS N/A ══
+const cartasItems=[
+  {req:'Comité Paritario (CPHS)',norm:'Ley 16.744 Art. 66 / DS 54',just:'Dotación inferior a 25 trabajadores en el contrato'},
+  {req:'Departamento de Prevención de Riesgos',norm:'DS 40 Art. 8',just:'Dotación inferior a 100 trabajadores'},
+  {req:'Sindicato / Organización Sindical',norm:'Código del Trabajo Art. 227',just:'Los trabajadores no han constituido organización sindical'},
+  {req:'Jornada Excepcional de Trabajo',norm:'Código del Trabajo Art. 38',just:'El contrato opera bajo jornada ordinaria de trabajo'},
+]
+
+function renderCartas(){
+  const tb=document.getElementById('cartas-tbody')
+  tb.innerHTML=''
+  cartasItems.forEach((it,i)=>{
+    const tr=document.createElement('tr')
+    tr.innerHTML=`
+      <td style="font-weight:700;font-size:12px;color:var(--cyan);text-align:center">${i+1}</td>
+      <td><input value="${it.req}" onchange="cartasItems[${i}].req=this.value" placeholder="Ítem o requisito"/></td>
+      <td><input value="${it.norm}" onchange="cartasItems[${i}].norm=this.value" placeholder="DS/Ley/Art."/></td>
+      <td><input value="${it.just}" onchange="cartasItems[${i}].just=this.value" placeholder="Motivo de no aplicabilidad"/></td>
+      <td><button class="btn btn-del" onclick="cartasItems.splice(${i},1);renderCartas()">✕</button></td>`
+    tb.appendChild(tr)
+  })
+}
+
+function addItem(){
+  cartasItems.push({req:'',norm:'DS 44',just:''})
+  renderCartas()
+}
+
+async function generarTodasCartas(){
+  const empresa=document.getElementById('c-empresa').value||'[Empresa]'
+  const contrato=document.getElementById('c-contrato').value||'[N° Contrato]'
+  const mandante=document.getElementById('c-mandante').value||'[Mandante]'
+  const rep=document.getElementById('c-rep').value||'[Representante Legal]'
+  const ciudad=document.getElementById('c-ciudad').value||'Calama, junio 2026'
+  const items=cartasItems.map((it,i)=>`${i+1}. ${it.req} — Norma: ${it.norm} — Justificación: ${it.just}`).join('\n')
+  const prompt=`Genera ${cartasItems.length} carta(s) formales de No Aplicabilidad para la siguiente empresa:
+
+Empresa: ${empresa} | Contrato N°: ${contrato} | Mandante: ${mandante}
+Representante Legal: ${rep} | Ciudad y fecha: ${ciudad}
+
+Ítems a declarar como No Aplicables:
+${items}
+
+Para CADA ítem genera una carta formal completa con:
+- Número y fecha de la carta
+- Datos de la empresa y contrato
+- Asunto: Declaración de No Aplicabilidad — [nombre del ítem]
+- Cuerpo: párrafo que justifica la no aplicabilidad citando el artículo legal exacto
+- Declaración formal de no aplicabilidad
+- Espacio para firma del Representante Legal y sello de la empresa
+- Separador entre cartas
+
+Formato formal, listo para firmar y presentar al mandante.`
+
+  const out=document.getElementById('ia-cartas')
+  document.getElementById('cartas-output-wrap').style.display='block'
+  out.className='ia-output'
+  out.innerHTML='<span class="spinner"></span> Generando cartas con IA...'
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:'Eres experto en documentación legal HSE chilena. Redactas cartas formales de no aplicabilidad con lenguaje técnico preciso, citando artículos exactos de la normativa chilena vigente.',
+        messages:[{role:'user',content:prompt}]
+      })
+    })
+    const d=await r.json()
+    out.textContent=d.content?.find(x=>x.type==='text')?.text||'Sin respuesta.'
+  }catch(e){out.textContent='Error al conectar con IA.'}
+}
+
+// ══ CHEQUEO DOCUMENTAL ══
+const CHEQUEO_ITEMS=[
+  'ART / DET / ERT firmada para la tarea del día',
+  'Reglamento Interno (RIOHS) disponible y validado',
+  'ODI vigente y firmada por cada trabajador',
+  'Checklist de vehículo firmado antes de salir',
+  'Inducción Hombre Nuevo realizada (si aplica)',
+  'EPP completo y en buen estado',
+  'Extintor operativo en el área de trabajo',
+  'Plan de Emergencia conocido por el equipo',
+]
+const chequeoState={}
+function renderChequeo(){
+  const cont=document.getElementById('chequeo-list')
+  cont.innerHTML=''
+  CHEQUEO_ITEMS.forEach((it,i)=>{
+    const val=chequeoState['c'+i]||null
+    const row=document.createElement('div')
+    row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(0,43,73,.05)'
+    row.innerHTML=`
+      <span style="font-size:13px;color:var(--navy)">${it}</span>
+      <div style="display:flex;gap:6px">
+        <button class="btn${val==='SI'?' btn-primary':''}" style="padding:4px 12px;font-size:11px;${val==='SI'?'':'background:transparent;border:1px solid var(--border);color:var(--grey)'}" onclick="setChequeo(${i},'SI')">SI</button>
+        <button class="btn${val==='NO'?'':''}" style="padding:4px 12px;font-size:11px;${val==='NO'?'background:var(--red);color:#fff;border:none':'background:transparent;border:1px solid var(--border);color:var(--grey)'}" onclick="setChequeo(${i},'NO')">NO</button>
+        <button style="padding:4px 12px;font-size:11px;border-radius:14px;cursor:pointer;${val==='NA'?'background:var(--grey);color:#fff;border:none':'background:transparent;border:1px solid var(--border);color:var(--grey)'}" onclick="setChequeo(${i},'NA')">N/A</button>
+      </div>`
+    cont.appendChild(row)
+  })
+}
+function setChequeo(i,v){chequeoState['c'+i]=chequeoState['c'+i]===v?null:v;renderChequeo()}
+
+// ══ HALLAZGOS ══
+const hallazgos=[]
+function addHallazgo(){
+  const id=hallazgos.length+1
+  hallazgos.push({id,desc:'',riesgo:'Medio',medida:'',responsable:'',plazo:''})
+  renderHallazgos()
+  renderPlan()
+}
+function renderHallazgos(){
+  const cont=document.getElementById('hallazgos-list')
+  if(hallazgos.length===0){cont.innerHTML='<p style="font-size:13px;color:var(--grey);padding:16px 0;text-align:center">No hay hallazgos registrados. Presiona "+ Hallazgo" para agregar.</p>';return}
+  cont.innerHTML=''
+  hallazgos.forEach((h,i)=>{
+    const col=h.riesgo==='Alto'?'r-alto':h.riesgo==='Medio'?'r-medio':'r-bajo'
+    const div=document.createElement('div')
+    div.className='hallazgo-card'
+    div.innerHTML=`
+      <div class="hallazgo-num">HALLAZGO N°${h.id}</div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:10px">
+        <div class="fg"><label>Descripción del Hallazgo</label><textarea rows="2" placeholder="Describe la condición o acto inseguro observado..." onchange="hallazgos[${i}].desc=this.value">${h.desc}</textarea></div>
+        <div class="fg"><label>Nivel de Riesgo</label>
+          <select onchange="hallazgos[${i}].riesgo=this.value;renderHallazgos();renderPlan()">
+            <option${h.riesgo==='Alto'?' selected':''}>Alto</option>
+            <option${h.riesgo==='Medio'?' selected':''}>Medio</option>
+            <option${h.riesgo==='Bajo'?' selected':''}>Bajo</option>
+          </select>
+          <span class="riesgo-tag ${col}" style="margin-top:6px">${h.riesgo}</span>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="fg"><label>Medida Correctiva</label><input value="${h.medida}" placeholder="Acción inmediata requerida" onchange="hallazgos[${i}].medida=this.value;renderPlan()"/></div>
+        <div class="fg"><label>Responsable</label><input value="${h.responsable}" placeholder="Nombre del responsable" onchange="hallazgos[${i}].responsable=this.value;renderPlan()"/></div>
+      </div>
+      <button class="btn btn-del" style="margin-top:8px;font-size:11px" onclick="hallazgos.splice(${i},1);renderHallazgos();renderPlan()">✕ Eliminar</button>`
+    cont.appendChild(div)
+  })
+}
+function renderPlan(){
+  const tb=document.getElementById('plan-tbody')
+  tb.innerHTML=''
+  hallazgos.forEach((h,i)=>{
+    const tr=document.createElement('tr')
+    tr.innerHTML=`
+      <td style="font-weight:700;font-size:12px;color:var(--cyan);text-align:center">${h.id}</td>
+      <td style="font-size:12px">${h.desc||'—'}</td>
+      <td style="font-size:12px">${h.medida||'—'}</td>
+      <td><input style="width:100%;padding:5px;border:1px solid var(--border);border-radius:6px;font-size:12px" value="${h.responsable}" placeholder="Responsable" onchange="hallazgos[${i}].responsable=this.value"/></td>
+      <td><input type="date" style="width:100%;padding:5px;border:1px solid var(--border);border-radius:6px;font-size:12px" value="${h.plazo}" onchange="hallazgos[${i}].plazo=this.value"/></td>
+      <td><select style="padding:5px;border:1px solid var(--border);border-radius:6px;font-size:12px">
+        <option>Abierto</option><option>En Curso</option><option>Cerrado</option>
+      </select></td>`
+    tb.appendChild(tr)
+  })
+}
+
+async function generarInforme(){
+  const h=hallazgos.map((x,i)=>`H${i+1}: ${x.desc} — Riesgo:${x.riesgo} — Medida:${x.medida} — Resp:${x.responsable}`).join('\n')||'Sin hallazgos'
+  const chSI=CHEQUEO_ITEMS.filter((_,i)=>chequeoState['c'+i]==='SI').join(', ')||'Ninguno'
+  const chNO=CHEQUEO_ITEMS.filter((_,i)=>chequeoState['c'+i]==='NO').join(', ')||'Ninguno'
+  const prompt=`Genera un informe formal de visita y gestión HSE a terreno con los siguientes datos:
+
+Empresa: ${document.getElementById('t-empresa').value||'Omega Servicios SPA'}
+Faena/Cliente: ${document.getElementById('t-faena').value||'[Faena]'}
+Área: ${document.getElementById('t-area').value||'[Área]'}
+Fecha: ${document.getElementById('t-fecha').value||'[Fecha]'}
+Asesor HSE: ${document.getElementById('t-auditor').value||'Xennia Díaz'}
+Trabajadores: ${document.getElementById('t-trabajadores').value||'0'}
+Objetivo: ${document.getElementById('t-objetivo').value||'[Objetivo]'}
+Actividades: ${document.getElementById('t-actividades').value||'[Actividades]'}
+
+CHEQUEO DOCUMENTAL — Conformes: ${chSI} | No Conformes: ${chNO}
+HALLAZGOS (${hallazgos.length}): ${h}
+Registros fotográficos: ${[1,2,3,4].map(n=>document.getElementById('foto'+n).value).filter(Boolean).join(' | ')||'No registrados'}
+Supervisor en terreno: ${document.getElementById('firma2-nombre').value||'[Supervisor]'}
+
+Estructura del informe:
+1. ENCABEZADO con datos del contrato
+2. RESUMEN EJECUTIVO de la visita
+3. CHEQUEO DOCUMENTAL (tabla con estado)
+4. HALLAZGOS Y OBSERVACIONES (por nivel de riesgo)
+5. PLAN DE ACCIÓN CORRECTIVA con responsables y plazos
+6. REGISTRO FOTOGRÁFICO (descripción)
+7. CONCLUSIONES Y RECOMENDACIONES
+8. FIRMAS
+
+Formato técnico-profesional listo para archivar en carpeta RESSO.`
+
+  const out=document.getElementById('ia-informe')
+  document.getElementById('informe-output-wrap').style.display='block'
+  out.className='ia-output'
+  out.innerHTML='<span class="spinner"></span> Generando informe con IA...'
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:'Eres experto en gestión HSE minera chilena. Redactas informes de visita a terreno técnicos, completos y listos para archivar en carpetas RESSO de Codelco, BHP y otros mandantes mineros.',
+        messages:[{role:'user',content:prompt}]
+      })
+    })
+    const d=await r.json()
+    out.textContent=d.content?.find(x=>x.type==='text')?.text||'Sin respuesta.'
+  }catch(e){out.textContent='Error al conectar con IA.'}
+}
+
+function descargar(id,nombre){
+  const txt=document.getElementById(id).textContent
+  if(!txt||txt.includes('spinner'))return
+  const a=document.createElement('a')
+  a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}))
+  a.download=nombre+'_SmartHSE.txt';a.click()
+}
+
+function showTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'))
+  document.getElementById('panel-'+id).classList.add('active')
+  event.target.classList.add('active')
+}
+
+renderCartas();renderChequeo();renderHallazgos();renderPlan()
+</script>
+</body>
+</html>

@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Auditor RESSO Codelco DRT — Smart HSE</title>
+
+<style>
+:root{--navy:#002B49;--cyan:#00B4D8;--cyan2:#55B4B0;--lime:#7FBA00;--red:#E53E3E;--orange:#DD6B20;--white:#fff;--bg:#f4f8fb;--grey:#6B7280;--border:rgba(0,43,73,.1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:300;background:var(--bg);color:var(--navy)}
+/* TOP BAR */
+.topbar{background:var(--navy);padding:12px 32px;display:flex;align-items:center;justify-content:space-between}
+.topbar-logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;color:#fff;letter-spacing:2px;text-decoration:none}
+.topbar-logo span{color:var(--cyan)}
+.topbar-back{font-size:12px;color:rgba(255,255,255,.6);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s}
+.topbar-back:hover{color:var(--cyan)}
+/* TABS */
+.tab-bar{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:0;overflow-x:auto}
+.tab-btn{padding:16px 24px;font-size:13px;font-weight:600;color:var(--grey);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;letter-spacing:.5px}
+.tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab-btn:hover{color:var(--navy)}
+/* PANELS */
+.tab-panel{display:none;padding:32px;max-width:1100px;margin:0 auto}
+.tab-panel.active{display:block}
+/* CARDS */
+.card{background:var(--white);border-radius:12px;padding:24px;border:1px solid var(--border);margin-bottom:20px}
+.card-title{font-family:'Montserrat',sans-serif;font-weight:600;font-size:15px;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+/* FORM */
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:700px){.form-grid{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:11px;font-weight:600;color:var(--grey);letter-spacing:1px;text-transform:uppercase}
+.form-group input,.form-group select,.form-group textarea{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Inter',sans-serif;color:var(--navy);background:var(--bg);outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--cyan)}
+/* PROGRESS */
+.progress-wrap{margin:20px 0}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.progress-label{font-size:13px;font-weight:600;color:var(--navy)}
+.progress-pct{font-family:'Montserrat',sans-serif;font-size:20px;font-weight:700;color:var(--cyan)}
+.progress-bar-bg{height:10px;background:rgba(0,43,73,.08);border-radius:10px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:10px;transition:width .4s,background .4s;background:var(--grey)}
+.semaforo{display:inline-block;padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.sem-red{background:rgba(229,62,62,.1);color:var(--red);border:1px solid rgba(229,62,62,.3)}
+.sem-orange{background:rgba(221,107,32,.1);color:var(--orange);border:1px solid rgba(221,107,32,.3)}
+.sem-green{background:rgba(127,186,0,.12);color:var(--lime);border:1px solid rgba(127,186,0,.3)}
+/* RESSO TABLE */
+.resso-table{width:100%;border-collapse:collapse}
+.resso-table th{font-size:10px;font-weight:700;color:var(--grey);letter-spacing:1.5px;text-transform:uppercase;padding:10px 12px;background:var(--bg);text-align:left}
+.resso-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+.resso-table tr:last-child td{border:none}
+.btn-si,.btn-no,.btn-na{padding:5px 12px;border-radius:16px;border:1px solid;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;transition:all .2s}
+.btn-si{border-color:rgba(127,186,0,.4);color:var(--lime);background:rgba(127,186,0,.08)}
+.btn-si.active{background:var(--lime);color:#fff;border-color:var(--lime)}
+.btn-no{border-color:rgba(229,62,62,.4);color:var(--red);background:rgba(229,62,62,.08)}
+.btn-no.active{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-na{border-color:rgba(107,114,128,.3);color:var(--grey);background:rgba(107,114,128,.06)}
+.btn-na.active{background:var(--grey);color:#fff;border-color:var(--grey)}
+.item-num{font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;color:var(--cyan);min-width:28px}
+.item-elem{font-size:11px;color:var(--cyan);font-weight:600}
+/* BUTTONS */
+.btn{padding:10px 22px;border-radius:24px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:transform .2s,box-shadow .2s;letter-spacing:.5px}
+.btn-primary{background:var(--cyan);color:#fff}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,180,216,.3)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,43,73,.2)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--navy)}
+/* SUBTABS */
+.subtab-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.subtab-btn{padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--grey);transition:all .2s}
+.subtab-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.subtab-panel{display:none}
+.subtab-panel.active{display:block}
+/* IA OUTPUT */
+.ia-output{background:var(--navy);border-radius:12px;padding:24px;color:rgba(255,255,255,.85);font-size:13px;line-height:1.8;min-height:120px;white-space:pre-wrap;font-family:'Inter',sans-serif}
+.ia-output.empty{display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.3);font-size:14px}
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border:none}
+.toggle-label{font-size:13px;color:var(--navy);flex:1;padding-right:16px}
+.toggle-label small{display:block;font-size:11px;color:var(--grey);margin-top:2px}
+.toggle-btns{display:flex;gap:6px}
+/* UPLOAD AREA */
+.upload-area{border:2px dashed var(--border);border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative}
+.upload-area:hover{border-color:var(--cyan)}
+.upload-area textarea{width:100%;min-height:160px;border:none;background:transparent;font-size:13px;font-family:'Inter',sans-serif;color:var(--navy);resize:vertical;outline:none}
+.upload-icon{font-size:32px;margin-bottom:12px}
+/* DICTAMEN */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+@media(max-width:600px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi-box{background:var(--bg);border-radius:10px;padding:16px;text-align:center;border:1px solid var(--border)}
+.kpi-val{font-family:'Montserrat',sans-serif;font-size:28px;font-weight:700;color:var(--cyan)}
+.kpi-lbl{font-size:10px;font-weight:600;color:var(--grey);letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.badge-dictamen{display:inline-block;padding:8px 20px;border-radius:24px;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;letter-spacing:2px;margin-bottom:16px}
+.badge-aprobado{background:rgba(127,186,0,.12);color:var(--lime);border:2px solid rgba(127,186,0,.4)}
+.badge-rechazado{background:rgba(229,62,62,.1);color:var(--red);border:2px solid rgba(229,62,62,.3)}
+.badge-condicional{background:rgba(221,107,32,.1);color:var(--orange);border:2px solid rgba(221,107,32,.3)}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="topbar-back">← Volver al inicio</a>
+  <a class="topbar-logo" href="index.html"><span>SMART</span> HSE · Auditor RESSO Codelco DRT</a>
+  <div style="font-size:11px;color:var(--cyan);font-weight:600;letter-spacing:1px">RESSO V9 · DS 44</div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('carpeta')">📁 Carpeta Arranque</button>
+  <button class="tab-btn" id="tab-decl" onclick="showTab('declaraciones')">⚖️ RC / ECF / EST</button>
+  <button class="tab-btn" onclick="showTab('ds44')">🔍 Verificador DS 44</button>
+  <button class="tab-btn" onclick="showTab('dictamen')">📄 Dictamen General</button>
+</div>
+
+<!-- ══════════ PESTAÑA 1: CARPETA ARRANQUE ══════════ -->
+<div class="tab-panel active" id="panel-carpeta">
+
+  <div class="card">
+    <div class="card-title">📋 Datos del Contrato</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Empresa Contratista</label><input id="f-empresa" type="text" placeholder="Omega Servicios SPA"/></div>
+      <div class="form-group"><label>RUT Empresa</label><input id="f-rut" type="text" placeholder="76.XXX.XXX-X"/></div>
+      <div class="form-group"><label>N° Contrato</label><input id="f-contrato" type="text" placeholder="4600XXXXXX"/></div>
+      <div class="form-group"><label>Mandante / Faena</label><input id="f-mandante" type="text" placeholder="Codelco Radomiro Tomic"/></div>
+      <div class="form-group"><label>Servicio Prestado</label><input id="f-servicio" type="text" placeholder="Geomensura / Mantención"/></div>
+      <div class="form-group"><label>N° Trabajadores</label><input id="f-trabajadores" type="number" placeholder="0"/></div>
+      <div class="form-group"><label>Fecha Inicio</label><input id="f-inicio" type="date"/></div>
+      <div class="form-group"><label>Auditor HSE</label><input id="f-auditor" type="text" placeholder="Xennia Díaz"/></div>
+      <div class="form-group"><label>Fecha Auditoría</label><input id="f-fecha" type="date"/></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 Progreso RESSO V9 en Tiempo Real</div>
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <div>
+          <span class="progress-label">Cumplimiento General</span>
+          <div style="margin-top:4px" id="sem-badge"><span class="semaforo sem-red">CRÍTICO — Sin evaluar</span></div>
+        </div>
+        <div class="progress-pct" id="pct-val">0%</div>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+      <div style="display:flex;gap:24px;margin-top:12px;font-size:12px;color:var(--grey)">
+        <span>✅ SI: <strong id="cnt-si">0</strong></span>
+        <span>❌ NO: <strong id="cnt-no">0</strong></span>
+        <span>➖ N/A: <strong id="cnt-na">0</strong></span>
+        <span>⏳ Pendiente: <strong id="cnt-pend">29</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔎 Auditoría 29 Ítems RESSO V9</div>
+    <table class="resso-table">
+      <thead><tr>
+        <th>#</th><th>Elemento RESSO</th><th>Ítem a Verificar</th><th>Evaluación</th>
+      </tr></thead>
+      <tbody id="resso-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🤖 Dictamen IA con CAPA</div>
+    <button class="btn btn-primary" onclick="generarDictamenCarpeta()" id="btn-dictamen-carpeta">Generar Dictamen con IA</button>
+    <div style="margin-top:16px">
+      <div class="ia-output empty" id="ia-carpeta">Completa la auditoría y presiona "Generar Dictamen con IA"</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PESTAÑA 2: RC/ECF/EST ══════════ -->
+<div class="tab-panel" id="panel-declaraciones">
+
+  <div class="card" style="background:linear-gradient(135deg,rgba(0,180,216,.05),rgba(0,43,73,.03));border-color:rgba(0,180,216,.2)">
+    <div class="card-title">⚖️ Declaraciones de Aplicabilidad — Codelco DRT</div>
+    <p style="font-size:13px;color:var(--grey);line-height:1.6">Evalúa cada RC, ECF y EST. La IA genera el texto oficial de las 3 declaraciones de aplicabilidad para Codelco DRT según tu evaluación.</p>
+  </div>
+
+  <div class="subtab-bar">
+    <button class="subtab-btn active" onclick="showSubtab('rc')">RC — 27 Reglamentos Codelco</button>
+    <button class="subtab-btn" onclick="showSubtab('ecf')">ECF — 13 Estándares Faena</button>
+    <button class="subtab-btn" onclick="showSubtab('est')">EST — 10 Estándares Técnicos</button>
+  </div>
+
+  <div class="subtab-panel active" id="subtab-rc">
+    <div class="card">
+      <div class="card-title">📜 27 Reglamentos Corporativos (RC)</div>
+      <div id="rc-list"></div>
+    </div>
+  </div>
+  <div class="subtab-panel" id="subtab-ecf">
+    <div class="card">
+      <div class="card-title">🏭 13 Estándares Corporativos Faena (ECF)</div>
+      <div id="ecf-list"></div>
+    </div>
+  </div>
+  <div class="subtab-panel" id="subtab-est">
+    <div class="card">
+      <div class="card-title">⚙️ 10 Estándares Técnicos (EST)</div>
+      <div id="est-list"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🤖 Generar Declaraciones Oficiales con IA</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="generarDeclaraciones('RC')">Declaración RC</button>
+      <button class="btn btn-navy" onclick="generarDeclaraciones('ECF')">Declaración ECF</button>
+      <button class="btn btn-outline" onclick="generarDeclaraciones('EST')">Declaración EST</button>
+      <button class="btn btn-primary" onclick="generarDeclaraciones('TODAS')" style="background:linear-gradient(90deg,var(--cyan),var(--lime))">Generar las 3 Declaraciones</button>
+    </div>
+    <div style="margin-top:16px">
+      <div class="ia-output empty" id="ia-declaraciones">Evalúa los ítems y presiona "Generar las 3 Declaraciones"</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PESTAÑA 3: VERIFICADOR DS 44 ══════════ -->
+<div class="tab-panel" id="panel-ds44">
+  <div class="card">
+    <div class="card-title">🔍 Verificador de Documentos vs DS 44</div>
+    <p style="font-size:13px;color:var(--grey);margin-bottom:16px;line-height:1.6">Pega el texto de tu documento (ODI, Plan de Trabajo, Procedimiento, etc.) y la IA detectará automáticamente brechas respecto al DS N°44, generando las No Conformidades con cita exacta del artículo.</p>
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Tipo de Documento</label>
+      <select id="tipo-doc">
+        <option>ODI — Obligación de Informar</option>
+        <option>Plan de Trabajo HSE</option>
+        <option>Procedimiento de Trabajo Seguro</option>
+        <option>Reglamento Interno (RIOHS)</option>
+        <option>Programa de Capacitación</option>
+        <option>Otro documento</option>
+      </select>
+    </div>
+    <div class="upload-area">
+      <div class="upload-icon">📄</div>
+      <p style="font-size:13px;color:var(--grey);margin-bottom:12px">Pega aquí el texto del documento a verificar</p>
+      <textarea id="doc-texto" placeholder="Pega o escribe el contenido del documento aquí...&#10;&#10;Ejemplo: 'El presente ODI informa a todos los trabajadores los riesgos asociados a las labores de...'"></textarea>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="verificarDS44()">🔍 Verificar vs DS 44</button>
+      <button class="btn btn-outline" onclick="document.getElementById('doc-texto').value=''">Limpiar</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 Resultado — NC con Cita Legal</div>
+    <div class="ia-output empty" id="ia-ds44">Pega un documento y presiona "Verificar vs DS 44"</div>
+  </div>
+</div>
+
+<!-- ══════════ PESTAÑA 4: DICTAMEN GENERAL ══════════ -->
+<div class="tab-panel" id="panel-dictamen">
+  <div class="kpi-row">
+    <div class="kpi-box"><div class="kpi-val" id="d-pct">—</div><div class="kpi-lbl">Cumplimiento RESSO</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="d-nc" style="color:var(--red)">—</div><div class="kpi-lbl">No Conformidades</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="d-si">—</div><div class="kpi-lbl">Ítems Conformes</div></div>
+    <div class="kpi-box"><div class="kpi-val" id="d-na" style="color:var(--grey)">—</div><div class="kpi-lbl">No Aplica</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🏆 Dictamen Oficial para Codelco DRT</div>
+    <div style="margin-bottom:16px" id="badge-dictamen-wrap"></div>
+    <button class="btn btn-primary" onclick="generarDictamenGeneral()" style="margin-bottom:16px">Generar Dictamen Oficial con IA</button>
+    <div class="ia-output empty" id="ia-dictamen-general">Completa la Carpeta de Arranque y presiona "Generar Dictamen Oficial"</div>
+    <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap" id="dictamen-actions" style="display:none">
+      <button class="btn btn-outline" onclick="descargarDictamen()">⬇️ Descargar .txt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ DATOS RESSO V9 (29 ítems) ══
+const RESSO=[
+  {n:1,elem:'A',elem_name:'Liderazgo y Compromiso',item:'Política HSE difundida y firmada por representante legal'},
+  {n:2,elem:'B',elem_name:'Programa SST',item:'Programa SST anual elaborado, aprobado y disponible'},
+  {n:3,elem:'B',elem_name:'Programa SST',item:'Registro de difusión del Programa SST al personal'},
+  {n:4,elem:'B',elem_name:'Programa SST',item:'RIOHS validado por SEREMI y entregado con firma'},
+  {n:5,elem:'C',elem_name:'Confirmación de Procesos',item:'Confirmación de Procesos (Zyght) al día según contrato'},
+  {n:6,elem:'C',elem_name:'Liderazgo Operacional',item:'Liderazgo Operacional registrado y evidenciado'},
+  {n:7,elem:'D',elem_name:'Gestión de Contratistas',item:'Nómina de trabajadores actualizada y cargada en plataforma'},
+  {n:8,elem:'D',elem_name:'Gestión de Contratistas',item:'Acreditación individual de trabajadores vigente'},
+  {n:9,elem:'E',elem_name:'ODI',item:'ODI firmada por cada trabajador vigente en el contrato'},
+  {n:10,elem:'E',elem_name:'Capacitación',item:'Inducción Hombre Nuevo realizada y registrada'},
+  {n:11,elem:'F',elem_name:'Identificación de Peligros',item:'Matriz IPER/MIPER actualizada y validada para el contrato'},
+  {n:12,elem:'F',elem_name:'Controles Críticos',item:'Controles Críticos identificados y documentados'},
+  {n:13,elem:'G',elem_name:'Medidas Especiales',item:'Instructivo Campaña Vial RC N°10 difundido con registro'},
+  {n:14,elem:'G',elem_name:'Medidas Especiales',item:'Protocolo de Fatiga y Somnolencia implementado'},
+  {n:15,elem:'H',elem_name:'Estándares Corporativos',item:'Carpeta estructural OneDrive espejo RESSO V9 creada'},
+  {n:16,elem:'H',elem_name:'Estándares Corporativos',item:'LOD (Libro de Obra Digital) al día con cargas vigentes'},
+  {n:17,elem:'H',elem_name:'Estándares Corporativos',item:'Acreditación equipos especiales vigente (RPA/Drones DGAC)'},
+  {n:18,elem:'I',elem_name:'CPHS',item:'CPHS constituido o Carta N/A de no aplica firmada'},
+  {n:19,elem:'I',elem_name:'CPHS',item:'Actas de reunión CPHS al día (si aplica)'},
+  {n:20,elem:'J',elem_name:'Estadísticas DRDA',item:'Registro de accidentes/incidentes actualizado al mes'},
+  {n:21,elem:'J',elem_name:'Estadísticas DRDA',item:'Estadísticas DRDA ingresadas en plataforma Codelco'},
+  {n:22,elem:'K',elem_name:'Higiene Ocupacional',item:'Evaluaciones de higiene vigentes (ruido, sílice, UV)'},
+  {n:23,elem:'K',elem_name:'Higiene Ocupacional',item:'Programa de vigilancia médica activo y registrado'},
+  {n:24,elem:'L',elem_name:'Equipos y Vehículos',item:'Checklists de vehículos firmados por conductor con fecha'},
+  {n:25,elem:'L',elem_name:'Equipos y Vehículos',item:'Mantenciones preventivas al día con registro'},
+  {n:26,elem:'M',elem_name:'Emergencias',item:'Plan de Emergencia del contrato disponible y difundido'},
+  {n:27,elem:'N',elem_name:'Investigación',item:'Procedimiento de investigación de accidentes documentado'},
+  {n:28,elem:'O',elem_name:'Auditorías',item:'Auditoría interna RESSO realizada en el periodo'},
+  {n:29,elem:'P',elem_name:'Mejora Continua',item:'Plan de acción de brechas anteriores con estado actualizado'},
+]
+const ressoState=new Array(29).fill(null) // null=sin eval, 'SI','NO','NA'
+
+// ══ RENDER RESSO TABLE ══
+function renderRESSOTable(){
+  const tb=document.getElementById('resso-tbody')
+  tb.innerHTML=''
+  RESSO.forEach((it,i)=>{
+    const tr=document.createElement('tr')
+    const state=ressoState[i]
+    tr.innerHTML=`
+      <td><span class="item-num">${it.n}</span></td>
+      <td><span class="item-elem">${it.elem}</span><br><span style="font-size:11px;color:var(--grey)">${it.elem_name}</span></td>
+      <td style="max-width:340px">${it.item}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn-si${state==='SI'?' active':''}" onclick="setResso(${i},'SI')">SI</button>
+          <button class="btn-no${state==='NO'?' active':''}" onclick="setResso(${i},'NO')">NO</button>
+          <button class="btn-na${state==='NA'?' active':''}" onclick="setResso(${i},'NA')">N/A</button>
+        </div>
+      </td>`
+    tb.appendChild(tr)
+  })
+}
+
+function setResso(idx,val){
+  ressoState[idx]=ressoState[idx]===val?null:val
+  renderRESSOTable()
+  updateProgress()
+}
+
+function updateProgress(){
+  const si=ressoState.filter(x=>x==='SI').length
+  const no=ressoState.filter(x=>x==='NO').length
+  const na=ressoState.filter(x=>x==='NA').length
+  const pend=ressoState.filter(x=>x===null).length
+  const evaluated=si+no+na
+  const pct=evaluated>0?Math.round(si/(si+no)*100)||0:0
+  document.getElementById('cnt-si').textContent=si
+  document.getElementById('cnt-no').textContent=no
+  document.getElementById('cnt-na').textContent=na
+  document.getElementById('cnt-pend').textContent=pend
+  document.getElementById('pct-val').textContent=pct+'%'
+  const fill=document.getElementById('prog-fill')
+  fill.style.width=pct+'%'
+  fill.style.background=pct>=80?'var(--lime)':pct>=60?'var(--orange)':'var(--red)'
+  const badge=document.getElementById('sem-badge')
+  if(evaluated===0){badge.innerHTML='<span class="semaforo sem-red">CRÍTICO — Sin evaluar</span>'}
+  else if(pct>=80){badge.innerHTML='<span class="semaforo sem-green">APROBADO — Cumplimiento suficiente</span>'}
+  else if(pct>=60){badge.innerHTML='<span class="semaforo sem-orange">CONDICIONAL — Brechas moderadas</span>'}
+  else{badge.innerHTML='<span class="semaforo sem-red">RECHAZADO — Brechas críticas</span>'}
+  // update dictamen KPIs
+  document.getElementById('d-pct').textContent=pct+'%'
+  document.getElementById('d-nc').textContent=no
+  document.getElementById('d-si').textContent=si
+  document.getElementById('d-na').textContent=na
+  // badge dictamen
+  const bw=document.getElementById('badge-dictamen-wrap')
+  if(evaluated>0){
+    if(pct>=80)bw.innerHTML='<span class="badge-dictamen badge-aprobado">✅ APROBADO</span>'
+    else if(pct>=60)bw.innerHTML='<span class="badge-dictamen badge-condicional">⚠️ CONDICIONAL</span>'
+    else bw.innerHTML='<span class="badge-dictamen badge-rechazado">❌ RECHAZADO</span>'
+  }
+}
+
+// ══ RC / ECF / EST DATA ══
+const RC_ITEMS=[
+  'RC N°1 — Política de Seguridad y Salud Ocupacional',
+  'RC N°2 — Reglamento Especial para Empresas Contratistas (RESSO)',
+  'RC N°3 — Estándar de Confirmación de Procesos',
+  'RC N°4 — Estándar de Liderazgo Operacional',
+  'RC N°5 — Estándar de Gestión de Contratistas',
+  'RC N°6 — Estándar de Identificación de Peligros y Evaluación de Riesgos',
+  'RC N°7 — Estándar de Control de Energías Peligrosas (LOTO)',
+  'RC N°8 — Estándar de Trabajos en Altura',
+  'RC N°9 — Estándar de Espacios Confinados',
+  'RC N°10 — Estándar de Seguridad Vial',
+  'RC N°11 — Estándar de Manejo de Materiales Peligrosos',
+  'RC N°12 — Estándar de Prevención y Control de Incendios',
+  'RC N°13 — Estándar de Gestión de Emergencias',
+  'RC N°14 — Estándar de Investigación de Accidentes',
+  'RC N°15 — Estándar de Higiene Ocupacional',
+  'RC N°16 — Estándar de Equipos de Protección Personal',
+  'RC N°17 — Estándar de Herramientas Manuales y Portátiles',
+  'RC N°18 — Estándar de Excavaciones y Zanjas',
+  'RC N°19 — Estándar de Equipos Móviles y Vehículos',
+  'RC N°20 — Estándar de Uso de Explosivos',
+  'RC N°21 — Estándar de Trabajos Eléctricos',
+  'RC N°22 — Estándar de Gestión Ambiental en Operaciones',
+  'RC N°23 — Estándar de Bienestar Ocupacional',
+  'RC N°24 — Estándar de Fatiga y Somnolencia',
+  'RC N°25 — Estándar de Capacitación y Entrenamiento',
+  'RC N°26 — Estándar de Comité Paritario',
+  'RC N°27 — Estándar de Auditorías e Inspecciones',
+]
+const ECF_ITEMS=[
+  'ECF N°1 — Difusión política HSE en faena',
+  'ECF N°2 — Verificación ODI individual',
+  'ECF N°3 — Control de acceso a zonas restringidas',
+  'ECF N°4 — Protocolo de comunicación de emergencias',
+  'ECF N°5 — Gestión de residuos en faena',
+  'ECF N°6 — Control de polvo y material particulado',
+  'ECF N°7 — Señalización de áreas de trabajo',
+  'ECF N°8 — Control de ruido en sectores operativos',
+  'ECF N°9 — Protocolo de ingreso a faena',
+  'ECF N°10 — Inspección diaria de equipos críticos',
+  'ECF N°11 — Control de tránsito interno',
+  'ECF N°12 — Gestión de visitantes y personal nuevo',
+  'ECF N°13 — Reporte diario de condiciones inseguras',
+]
+const EST_ITEMS=[
+  'EST N°1 — Uso y mantención de arnés de seguridad',
+  'EST N°2 — Operación de grúas y equipos de izaje',
+  'EST N°3 — Gestión de equipos RPA/Drones (DAN 151)',
+  'EST N°4 — Operación de vehículos livianos en faena',
+  'EST N°5 — Control de temperatura en faenas de altura',
+  'EST N°6 — Uso de equipos de medición atmosférica',
+  'EST N°7 — Procedimiento de bloqueo de equipos mineros',
+  'EST N°8 — Operación de equipos de perforación',
+  'EST N°9 — Gestión de campamentos y alojamientos',
+  'EST N°10 — Monitoreo de condiciones geomecánicas',
+]
+const rcState={}, ecfState={}, estState={}
+
+function renderToggleList(items,state,prefix,containerId){
+  const cont=document.getElementById(containerId)
+  cont.innerHTML=''
+  items.forEach((it,i)=>{
+    const key=prefix+i
+    const val=state[key]||null
+    const row=document.createElement('div')
+    row.className='toggle-row'
+    row.innerHTML=`
+      <div class="toggle-label">
+        ${it}
+        <small>${val?'Evaluado: '+val:'Sin evaluar'}</small>
+      </div>
+      <div class="toggle-btns">
+        <button class="btn-si${val==='SI'?' active':''}" onclick="setToggle('${prefix}',${i},'SI','${containerId}')">SI</button>
+        <button class="btn-no${val==='NO'?' active':''}" onclick="setToggle('${prefix}',${i},'NO','${containerId}')">NO</button>
+        <button class="btn-na${val==='NA'?' active':''}" onclick="setToggle('${prefix}',${i},'NA','${containerId}')">N/A</button>
+      </div>`
+    cont.appendChild(row)
+  })
+}
+
+function setToggle(prefix,idx,val,containerId){
+  const stateObj=prefix==='rc'?rcState:prefix==='ecf'?ecfState:estState
+  const key=prefix+idx
+  stateObj[key]=stateObj[key]===val?null:val
+  const items=prefix==='rc'?RC_ITEMS:prefix==='ecf'?ECF_ITEMS:EST_ITEMS
+  renderToggleList(items,stateObj,prefix,containerId)
+}
+
+// ══ AI CALL ══
+async function callIA(prompt,outputId,btnId){
+  const out=document.getElementById(outputId)
+  const btn=btnId?document.getElementById(btnId):null
+  out.className='ia-output'
+  out.innerHTML='<span class="spinner"></span> Generando con IA...'
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...'}
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:'Eres un experto en HSE minero chileno. Respondes en español, de forma técnica y precisa, citando artículos exactos del DS 44, RESSO V9, Ley 16.744 cuando corresponde. Formato de respuesta: texto profesional listo para usar en documentación oficial.',
+        messages:[{role:'user',content:prompt}]
+      })
+    })
+    const d=await r.json()
+    const txt=d.content?.find(x=>x.type==='text')?.text||'Sin respuesta de IA.'
+    out.textContent=txt
+    out.className='ia-output'
+    document.getElementById('dictamen-actions')&&(document.getElementById('dictamen-actions').style.display='flex')
+  }catch(e){
+    out.textContent='Error al conectar con IA. Verifica tu conexión e inténtalo de nuevo.'
+  }
+  if(btn){btn.disabled=false;btn.innerHTML=btn.dataset.orig||'Generar con IA'}
+}
+
+function getContractData(){
+  return `Empresa: ${document.getElementById('f-empresa').value||'[Sin datos]'}, Contrato: ${document.getElementById('f-contrato').value||'[Sin datos]'}, Mandante: ${document.getElementById('f-mandante').value||'Codelco DRT'}, Trabajadores: ${document.getElementById('f-trabajadores').value||'0'}, Auditor: ${document.getElementById('f-auditor').value||'[Sin datos]'}`
+}
+
+function generarDictamenCarpeta(){
+  const si=ressoState.filter(x=>x==='SI').length
+  const no=ressoState.filter(x=>x==='NO').length
+  const na=ressoState.filter(x=>x==='NA').length
+  const brechas=RESSO.filter((_,i)=>ressoState[i]==='NO').map(it=>`${it.n}. [${it.elem}] ${it.item}`).join('\n')
+  const conforme=RESSO.filter((_,i)=>ressoState[i]==='SI').map(it=>`${it.n}. ${it.elem_name}`).join(', ')
+  const pct=si+no>0?Math.round(si/(si+no)*100):0
+  const prompt=`Genera un dictamen formal de auditoría RESSO V9 para Codelco DRT con los siguientes datos:
+
+${getContractData()}
+Cumplimiento: ${pct}% (SI:${si}, NO:${no}, N/A:${na}/29 ítems)
+Ítems conformes: ${conforme||'Ninguno evaluado'}
+Brechas detectadas (NO):
+${brechas||'Sin brechas'}
+
+El dictamen debe incluir:
+1. Encabezado formal (empresa, contrato, fecha, auditor)
+2. Resumen ejecutivo del cumplimiento
+3. Listado de No Conformidades con elemento RESSO y artículo DS 44 relacionado
+4. Plan de Acción Correctiva (CAPA) con plazos sugeridos para cada NC
+5. Veredicto final: APROBADO / CONDICIONAL / RECHAZADO según porcentaje
+6. Firma del auditor
+
+Usa lenguaje técnico formal apropiado para Codelco DRT.`
+  document.getElementById('btn-dictamen-carpeta').dataset.orig='Generar Dictamen con IA'
+  callIA(prompt,'ia-carpeta','btn-dictamen-carpeta')
+}
+
+function generarDeclaraciones(tipo){
+  const rcNo=RC_ITEMS.filter((_,i)=>rcState['rc'+i]==='NO').map(it=>it)
+  const ecfNo=ECF_ITEMS.filter((_,i)=>ecfState['ecf'+i]==='NO').map(it=>it)
+  const estNo=EST_ITEMS.filter((_,i)=>estState['est'+i]==='NO').map(it=>it)
+  const rcNA=RC_ITEMS.filter((_,i)=>rcState['rc'+i]==='NA').map(it=>it)
+  const ecfNA=ECF_ITEMS.filter((_,i)=>ecfState['ecf'+i]==='NA').map(it=>it)
+  const estNA=EST_ITEMS.filter((_,i)=>estState['est'+i]==='NA').map(it=>it)
+
+  const prompt=`Genera las declaraciones oficiales de aplicabilidad para Codelco DRT.
+${getContractData()}
+
+${tipo==='RC'||tipo==='TODAS'?`RC NO APLICA: ${rcNA.join(' | ')||'Ninguno'}\nRC INCUMPLIDOS: ${rcNo.join(' | ')||'Ninguno'}`:''}
+${tipo==='ECF'||tipo==='TODAS'?`ECF NO APLICA: ${ecfNA.join(' | ')||'Ninguno'}\nECF INCUMPLIDOS: ${ecfNo.join(' | ')||'Ninguno'}`:''}
+${tipo==='EST'||tipo==='TODAS'?`EST NO APLICA: ${estNA.join(' | ')||'Ninguno'}\nEST INCUMPLIDOS: ${estNo.join(' | ')||'Ninguno'}`:''}
+
+Genera el texto oficial de la(s) declaración(es) solicitadas (${tipo}). Cada declaración debe tener:
+- Encabezado formal con datos del contrato
+- Tabla de aplicabilidad con columnas: N° | Nombre | Aplica (SI/NO) | Justificación
+- Párrafo de declaración jurada
+- Espacio para firma del representante legal
+- Cita al artículo específico del DS 44 que justifica cada no aplicabilidad`
+
+  callIA(prompt,'ia-declaraciones')
+}
+
+function verificarDS44(){
+  const texto=document.getElementById('doc-texto').value.trim()
+  const tipo=document.getElementById('tipo-doc').value
+  if(!texto){alert('Pega el texto del documento primero.');return}
+  const prompt=`Eres un auditor experto en DS N°44 (Reglamento Especial para Empresas Contratistas Mineras de Chile).
+
+Analiza el siguiente documento tipo "${tipo}" y detecta todas las brechas o No Conformidades respecto al DS N°44 vigente:
+
+--- DOCUMENTO ---
+${texto.substring(0,3000)}
+--- FIN DOCUMENTO ---
+
+Para cada No Conformidad detectada, indica:
+NC N°X: [Descripción del problema]
+Artículo DS 44 infringido: Art. XX, inciso X — "[cita textual del artículo]"
+Medida correctiva requerida: [acción específica]
+
+Al final, incluye un resumen con: Total NC críticas, Total NC leves, Veredicto: CONFORME / NO CONFORME`
+
+  callIA(prompt,'ia-ds44')
+}
+
+function generarDictamenGeneral(){
+  const si=ressoState.filter(x=>x==='SI').length
+  const no=ressoState.filter(x=>x==='NO').length
+  const na=ressoState.filter(x=>x==='NA').length
+  const pct=si+no>0?Math.round(si/(si+no)*100):0
+  const prompt=`Genera el Dictamen Oficial consolidado de auditoría HSE para Codelco DRT.
+
+${getContractData()}
+RESSO V9 — SI:${si}, NO:${no}, N/A:${na} — Cumplimiento: ${pct}%
+Brechas RESSO: ${RESSO.filter((_,i)=>ressoState[i]==='NO').map(it=>it.elem_name).join(', ')||'Sin brechas registradas'}
+
+El dictamen oficial debe incluir:
+1. ENCABEZADO OFICIAL con logo y datos del contrato
+2. RESUMEN EJECUTIVO (3-4 líneas)
+3. RESULTADOS POR ELEMENTO RESSO (tabla compacta)
+4. NO CONFORMIDADES detalladas con artículo DS 44
+5. PLAN DE ACCIÓN CORRECTIVA con responsables y plazos
+6. VEREDICTO FINAL con badge: APROBADO / CONDICIONAL / RECHAZADO
+7. FIRMAS: Auditor HSE y Representante Contratista
+
+Formato formal, listo para entregar a Codelco DRT.`
+
+  callIA(prompt,'ia-dictamen-general')
+}
+
+function descargarDictamen(){
+  const txt=document.getElementById('ia-dictamen-general').textContent
+  if(!txt||txt.includes('Completa'))return
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'})
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob)
+  a.download=`Dictamen_RESSO_${document.getElementById('f-contrato').value||'SmartHSE'}.txt`
+  a.click()
+}
+
+// ══ TAB NAVIGATION ══
+function showTab(id){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'))
+  document.getElementById('panel-'+id).classList.add('active')
+  event.target.classList.add('active')
+}
+
+function showSubtab(id){
+  document.querySelectorAll('.subtab-panel').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.subtab-btn').forEach(b=>b.classList.remove('active'))
+  document.getElementById('subtab-'+id).classList.add('active')
+  event.target.classList.add('active')
+}
+
+// ══ HASH NAVIGATION (para enlace directo a declaraciones) ══
+if(location.hash==='#declaraciones'){
+  setTimeout(()=>{document.getElementById('tab-decl').click()},100)
+}
+
+// ══ INIT ══
+renderRESSOTable()
+renderToggleList(RC_ITEMS,rcState,'rc','rc-list')
+renderToggleList(ECF_ITEMS,ecfState,'ecf','ecf-list')
+renderToggleList(EST_ITEMS,estState,'est','est-list')
+</script>
+</body>
+</html>
